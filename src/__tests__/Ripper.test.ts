@@ -6,6 +6,4 @@ test('My Ripper', () => {
   const r2 = new Ripper();
   expect(r2.getName()).toBe('default name');
   expect(r.getName()).toBe('Pepa');
-
 });
-
