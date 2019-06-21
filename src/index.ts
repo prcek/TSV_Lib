@@ -1,5 +1,4 @@
-import { fetch } from 'cross-fetch';
-
+import 'cross-fetch/polyfill'
 export const Greeter = (name: string) => `Hello ${name}`;
 
 export class Ripper {
