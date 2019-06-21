@@ -1,5 +1,4 @@
-import {fetch} from 'cross-fetch';
-
+import { fetch } from 'cross-fetch';
 
 export const Greeter = (name: string) => `Hello ${name}`;
 
@@ -17,17 +16,17 @@ export class Ripper {
 }
 
 export interface IFioRecord {
-    userId: number;
-    id: number;
-    title: string;
-    completed: boolean;
+  userId: number;
+  id: number;
+  title: string;
+  completed: boolean;
 }
 
 // tslint:disable-next-line:max-classes-per-file
 export class FioReader {
-    public async getRecord(): Promise<IFioRecord> {
-       const r = await fetch('https://jsonplaceholder.typicode.com/todos/1');
-       const js = await r.json();
-       return js;
-    }
+  public async getRecord(): Promise<IFioRecord> {
+    const r = await fetch('https://jsonplaceholder.typicode.com/todos/1');
+    const js = await r.json();
+    return js;
+  }
 }
