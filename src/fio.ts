@@ -26,9 +26,9 @@ export interface IFioTransaction {
     fAccountName: string | null;
     fBankName: string | null;
 
-    ks: number | null;
-    vs: number | null;
-    ss: number | null;
+    ks: string | null;
+    vs: string | null;
+    ss: string | null;
     userRef: string | null;
     userMsg: string | null;
     comment: string | null;
@@ -46,9 +46,9 @@ export interface IFioRawTransaction {
     column10: IFioRawTrRecordS; // protiucet nazev
     column12: IFioRawTrRecordS; // protiucet banka nazev
 
-    column4: IFioRawTrRecordN; // KS
-    column5: IFioRawTrRecordN; // VS
-    column6: IFioRawTrRecordN; // SS
+    column4: IFioRawTrRecordS; // KS
+    column5: IFioRawTrRecordS; // VS
+    column6: IFioRawTrRecordS; // SS
     column7: IFioRawTrRecordS; // Uživatelská identifikace
     column16: IFioRawTrRecordS; // Zpráva pro příjemce
     column25: IFioRawTrRecordS; // Komentář
@@ -77,6 +77,8 @@ export interface IFioInfo {
   idLastDownload: number | null;
 }
 
+
+
 // tslint:disable-next-line:max-classes-per-file
 export class FioReader {
   private apiUrl = 'https://www.fio.cz/ib_api/rest/';
@@ -86,7 +88,41 @@ export class FioReader {
   }
 
 
-  public raw2tr(rt: IFioRawTransaction): IFioTransaction {
+  public async getLast(): Promise<IFioRecord> {
+    const r = await fetch(this.apiUrl + 'last/' + this.apiToken + '/transactions.json');
+    const js = await r.json();
+    return this.raw2fr(js);
+  }
+
+  public async getPeriods(fromDate: Date, toDate: Date): Promise<IFioRecord> {
+    const r = await fetch(
+        this.apiUrl + 'periods/' + 
+        this.apiToken + '/' +
+        this.date2fioParam(fromDate) + '/' + this.date2fioParam(toDate) + '/transactions.json');
+    const js = await r.json();
+    return this.raw2fr(js);
+  }
+
+
+  private async _getRaw(): Promise<string> {
+    // const r = await fetch('https://jsonplaceholder.typicode.com/todos/1');
+    // const r = await fetch(this.apiUrl + 'last/' + this.apiToken + '/transactions.json');
+    const r = await fetch(this.apiUrl + 'periods/' + this.apiToken + '/2019-06-12/2019-06-12/transactions.json');
+    const jt = await r.text();
+    // const js:IFioRecord = await r.json();
+    // console.log(js.accountStatement.transactionList.transaction);
+    return jt;
+  }
+
+  private date2fioParam(d: Date): string {
+    const yp = d.getUTCFullYear().toString(10).padStart(2,'0');
+    const mp = (d.getUTCMonth()+1).toString(10).padStart(2,'0');
+    const dp = d.getUTCDate().toString(10).padStart(2,'0');
+    return yp + '-' + mp + '-' + dp;
+}
+
+
+  private raw2tr(rt: IFioRawTransaction): IFioTransaction {
       return {
           // mandatory fields:
           id: rt.column22.value,
@@ -111,7 +147,7 @@ export class FioReader {
           comment: rt.column25 ? rt.column25.value : null,
       }
   }
-  public raw2fr(js: any): IFioRecord {
+  private raw2fr(js: any): IFioRecord {
     return { 
         userId: js.userId,
         // tslint:disable-next-line:object-literal-sort-keys
@@ -137,29 +173,4 @@ export class FioReader {
     };
   } 
 
-  public async getLast(): Promise<IFioRecord> {
-    const r = await fetch(this.apiUrl + 'last/' + this.apiToken + '/transactions.json');
-    // const r = await fetch(this.apiUrl + 'periods/' + this.apiToken + '/2019-06-01/2019-06-23/transactions.json');
-    const js = await r.json();
-    return this.raw2fr(js);
-  }
-
-  public async getPeriods(): Promise<IFioRecord> {
-    const r = await fetch(this.apiUrl + 'last/' + this.apiToken + '/transactions.json');
-    // const r = await fetch(this.apiUrl + 'periods/' + this.apiToken + '/2019-06-01/2019-06-23/transactions.json');
-    const js = await r.json();
-    return this.raw2fr(js);
-  }
-
-
-
-  public async _getRaw(): Promise<string> {
-    // const r = await fetch('https://jsonplaceholder.typicode.com/todos/1');
-    // const r = await fetch(this.apiUrl + 'last/' + this.apiToken + '/transactions.json');
-    const r = await fetch(this.apiUrl + 'periods/' + this.apiToken + '/2019-06-12/2019-06-12/transactions.json');
-    const jt = await r.text();
-    // const js:IFioRecord = await r.json();
-    // console.log(js.accountStatement.transactionList.transaction);
-    return jt;
-  }
 }

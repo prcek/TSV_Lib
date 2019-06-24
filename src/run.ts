@@ -10,6 +10,6 @@ console.log(r.getName());
 
 const fr = new FioReader(process.env.FIO_TOKEN || 'missing');
 
-fr._getRaw().then(frr => {
-  console.log(frr);
+fr.getPeriods(new Date(), new Date()).then(frr => {
+  console.log(frr.accountStatement.transactionList.transaction);
 });
