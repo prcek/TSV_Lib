@@ -10,6 +10,6 @@ console.log(r.getName());
 
 const fr = new FioReader(process.env.FIO_TOKEN || 'missing');
 
-fr.getRecord().then(frr => {
-  console.log('frr:', frr.accountStatement.info.accountId);
+fr._getRaw().then(frr => {
+  console.log(frr);
 });
