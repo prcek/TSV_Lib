@@ -7,24 +7,22 @@ require('dotenv').config();
 const mongod = new MongoMemoryServer();
 
 async function startLocalMongoDB(): Promise<mongoose.Connection> {
-    
-    const mongoUri: string = await mongod.getConnectionString();
+  const mongoUri: string = await mongod.getConnectionString();
 
-    const mongooseOpts = { // options for mongoose 4.11.3 and above
-        autoReconnect: true,
-        reconnectTries: Number.MAX_VALUE,
-        // tslint:disable-next-line:object-literal-sort-keys
-        reconnectInterval: 1000,
-        useNewUrlParser: true,
-        useCreateIndex: true,
-        useFindAndModify: false
-    };
-    const mongooseConnection = await mongoose.createConnection(mongoUri, mongooseOpts);
-    console.log(`Mongoose successfully connected to ${mongoUri}`);
-    return mongooseConnection;
+  const mongooseOpts = {
+    // options for mongoose 4.11.3 and above
+    autoReconnect: true,
+    reconnectTries: Number.MAX_VALUE,
+    // tslint:disable-next-line:object-literal-sort-keys
+    reconnectInterval: 1000,
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useFindAndModify: false,
+  };
+  const mongooseConnection = await mongoose.createConnection(mongoUri, mongooseOpts);
+  console.log(`Mongoose successfully connected to ${mongoUri}`);
+  return mongooseConnection;
 }
-
-
 
 /* 
 const fr = new FioReader(process.env.FIO_TOKEN || 'missing');
@@ -34,12 +32,11 @@ fr.getPeriods(new Date(), new Date()).then(frr => {
 });
 */
 
-startLocalMongoDB().then( async (mc)=> {
-    const fds = new FioDataStore(mc);
-    const info = await fds.getMongoVersion();
-    console.log(info);
-    mc.close();
-    mongod.stop();
-    return 'ok';
+startLocalMongoDB().then(async mc => {
+  const fds = new FioDataStore(mc);
+  const info = await fds.getMongoVersion();
+  console.log(info);
+  mc.close();
+  mongod.stop();
+  return 'ok';
 });
-
