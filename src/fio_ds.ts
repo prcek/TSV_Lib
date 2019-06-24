@@ -1,8 +1,8 @@
-import { Connection } from 'mongoose';
+import * as mongoose  from 'mongoose';
 
 export class FioDataStore {
-  private mongooseConnection: Connection;
-  constructor(mcon: Connection) {
+  private mongooseConnection: mongoose.Connection;
+  constructor(mcon: mongoose.Connection) {
     this.mongooseConnection = mcon;
   }
   public async getMongoVersion(): Promise<string> {
