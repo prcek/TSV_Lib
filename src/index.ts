@@ -15,3 +15,4 @@ export class Ripper {
 }
 
 export { FioReader } from './fio';
+export { FioDataStore } from './fio_ds';
