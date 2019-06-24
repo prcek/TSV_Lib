@@ -14,5 +14,4 @@ export class Ripper {
   }
 }
 
-
-export { FioReader }  from './fio';
+export { FioReader } from './fio';
