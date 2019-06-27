@@ -1,6 +1,6 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import * as mongoose from 'mongoose';
-import { FioDataStore } from '../index';
+import { FioDataStore, IFioBankTransaction } from '../fio_ds';
 
 
 const mongod = new MongoMemoryServer({debug:false, autoStart:false});
@@ -22,12 +22,12 @@ async function createMongooseConnection(mongoUri: string): Promise<mongoose.Conn
 
 
 beforeEach( () => {
-  console.log('beforeEach');
+ // console.log('beforeEach');
   return mongod.start();
 });
 
 afterEach( () => {
-  console.log('afterEach');
+ // console.log('afterEach');
   return mongod.stop()
 });
 
@@ -45,13 +45,28 @@ test('My FioDataStore',  async () => {
  
 });
 
-test('My FioDataStore2',  async () => {
+test('My FioDataStore - list,store,list',  async () => {
  
   const muri = await mongod.getConnectionString();
   const mc = await createMongooseConnection(muri);
   const fds = new FioDataStore(mc);
-  const info = await fds.getMongoVersion();
-  expect(info).toBe("4.0.3");
+  const atr  = await fds.fetchAllTransactions();
+  expect(atr.length).toBe(0);
+
+  const r = {
+    fioId: 1,
+    // tslint:disable-next-line:object-literal-sort-keys
+    fioAccountId: "a1",
+    date: "2019-10-10",
+    amount: 100,
+    currency: "CZK",
+    type: "nic",
+  };
+  const newtr = await fds.storeTransactionRecord(r as IFioBankTransaction);
+  const atr2  = await fds.fetchAllTransactions();
+  expect(atr2.length).toBe(1);
+  expect(atr2[0]).toMatchObject({currency:"CZK"});
+ // console.log("newtr",newtr)
   mc.close();
 
  

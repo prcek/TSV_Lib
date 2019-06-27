@@ -75,7 +75,6 @@ export interface IFioInfo {
   idLastDownload: number | null;
 }
 
-// tslint:disable-next-line:max-classes-per-file
 export class FioReader {
   private apiUrl = 'https://www.fio.cz/ib_api/rest/';
   private apiToken: string;
@@ -131,7 +130,6 @@ export class FioReader {
     return {
       // mandatory fields:
       id: rt.column22.value,
-      // tslint:disable-next-line:object-literal-sort-keys
       date: rt.column0.value,
       amount: rt.column1.value,
       currency: rt.column14.value,
@@ -154,7 +152,6 @@ export class FioReader {
   private raw2fr(js: any): IFioRecord {
     return {
       userId: js.userId,
-      // tslint:disable-next-line:object-literal-sort-keys
       id: js.id,
       title: js.title,
       completed: js.completed,
@@ -164,7 +161,6 @@ export class FioReader {
           bankId: js.accountStatement.info.bankId,
           currency: js.accountStatement.info.currency,
           iban: js.accountStatement.info.iban,
-          // tslint:disable-next-line:object-literal-sort-keys
           bic: js.accountStatement.info.bic,
           idFrom: js.accountStatement.info.idFrom,
           idTo: js.accountStatement.info.idTo,

@@ -4,7 +4,7 @@ import { FioDataStore, FioReader } from './index';
 // tslint:disable-next-line:no-var-requires
 require('dotenv').config();
 
-const mongod = new MongoMemoryServer();
+const mongod = new MongoMemoryServer({debug:false, autoStart:false});
 
 async function startLocalMongoDB(): Promise<mongoose.Connection> {
   const mongoUri: string = await mongod.getConnectionString();
@@ -31,7 +31,7 @@ fr.getPeriods(new Date(), new Date()).then(frr => {
   console.log(frr.accountStatement.transactionList.transaction);
 });
 */
-
+/*
 startLocalMongoDB().then(async mc => {
   const fds = new FioDataStore(mc);
   const info = await fds.getMongoVersion();
@@ -40,3 +40,13 @@ startLocalMongoDB().then(async mc => {
   mongod.stop();
   return 'ok';
 });
+*/
+console.log('create schema');
+const sh = new mongoose.Schema({
+  fioId: Number,
+  fioAccountId: String,
+  currency: String,
+}).index({fioId: 1, fioAccountId: 1}, { unique: true });
+
+
+console.log('create schema done');

@@ -1,7 +1,7 @@
 import { FetchMock } from 'jest-fetch-mock';
 const fetchMock = fetch as FetchMock;
 
-import { FioReader } from '../index';
+import { FioReader } from '../fio_reader';
 test('My FioReader - GetLast', async () => {
   fetchMock.resetMocks();
   fetchMock.mockResponseOnce(
