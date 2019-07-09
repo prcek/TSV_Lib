@@ -1,3 +1,5 @@
+import pThrottle = require('p-throttle');
+
 export interface IFioRecord {
   userId: number;
   id: number;
@@ -75,15 +77,22 @@ export interface IFioInfo {
   idLastDownload: number | null;
 }
 
+
+
 export class FioReader {
   private apiUrl = 'https://www.fio.cz/ib_api/rest/';
   private apiToken: string;
+  private thfetch =  pThrottle( (url : string) => {
+    return fetch(url);
+  }, 1, 30000);
+  
+  
   constructor(token: string) {
     this.apiToken = token;
   }
 
   public async getLast(): Promise<IFioRecord> {
-    const r = await fetch(this.apiUrl + 'last/' + this.apiToken + '/transactions.json');
+    const r = await this.thfetch(this.apiUrl + 'last/' + this.apiToken + '/transactions.json');
     const js = await r.json();
     return this.raw2fr(js);
   }
@@ -107,7 +116,7 @@ export class FioReader {
 
 
   public async getPeriods(fromDate: Date, toDate: Date): Promise<IFioRecord> {
-    const r = await fetch(
+    const r = await this.thfetch(
       this.apiUrl +
         'periods/' +
         this.apiToken +

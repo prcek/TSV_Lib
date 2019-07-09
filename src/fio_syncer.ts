@@ -4,7 +4,7 @@ import { FioReader, IFioInfo, IFioTransaction } from "./fio_reader";
 export class FioSyncer {
     private reader: FioReader;
     private store: FioDataStore;
-
+    private ready: boolean = false;
  
     constructor(reader: FioReader, store: FioDataStore) {
         this.reader = reader;
