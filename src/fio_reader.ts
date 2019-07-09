@@ -88,6 +88,24 @@ export class FioReader {
     return this.raw2fr(js);
   }
 
+  public async getDayLastId(checkDate: Date): Promise<number | null> {
+
+    const fromD = new Date(checkDate.getTime() - (3600000*24*7)); // 7 days
+
+    const fior = await this.getPeriods(fromD,checkDate);
+    if (fior) {
+      return fior.accountStatement.info.idTo;
+    } 
+    return null;
+  }
+
+  public async setLastId(lastId: number): Promise<boolean> {
+    //https://www.fio.cz/ib_api/rest/set-last-id/{token}/{id}/
+    const r = await fetch(this.apiUrl + 'set-last-id/' + this.apiToken + '/'+lastId +'/');
+    return r.status == 200;
+  }
+
+
   public async getPeriods(fromDate: Date, toDate: Date): Promise<IFioRecord> {
     const r = await fetch(
       this.apiUrl +

@@ -22,7 +22,15 @@ export interface IFioBankTransaction {
     comment: string | null;
 }
 
+export interface IFioBankSyncInfo {
+  _id: any;
+  fioAccountId: string;
+  idLastDownload: number;
+}
+
 export interface IFioBankTransactionModel extends mongoose.Document, IFioBankTransaction {
+}
+export interface IFioBankSyncInfoModel extends mongoose.Document, IFioBankSyncInfo {
 }
 
 
@@ -34,9 +42,20 @@ export class FioDataStore {
     fioAccountId: String,
     currency: String,
   }).index({fioId: 1, fioAccountId: 1}, { unique: true });
-  constructor(mcon: mongoose.Connection) {
+
+  private fioBankSyncInfoModel: mongoose.Model<IFioBankSyncInfoModel>;
+  private fioBankSyncInfoSchema = new mongoose.Schema({
+    fioAccountId: String,
+    idLastDownload: Number
+  }).index({fioAccountId: 1}, { unique: true });
+
+  private fioAccountId: string;
+
+  constructor(mcon: mongoose.Connection, fioAccountId: string) {
+    this.fioAccountId = fioAccountId;
     this.mongooseConnection = mcon;
     this.fioBankTransactionModel = this.mongooseConnection.model<IFioBankTransactionModel>('FioBankTransaction',this.fioBankTranscationSchema,'fiobanktranscations');
+    this.fioBankSyncInfoModel = this.mongooseConnection.model<IFioBankSyncInfoModel>('FioBankSyncInfo',this.fioBankSyncInfoSchema,'fiobanksyncinfo');
   }
   public async getMongoVersion(): Promise<string> {
     const info = await this.mongooseConnection.db.admin().buildInfo();
@@ -45,9 +64,43 @@ export class FioDataStore {
   }
   public async storeTransactionRecord(tr: IFioBankTransaction): Promise<IFioBankTransaction> {
     const trcopy =  R.omit(['_id'],tr);
+    if (tr.fioAccountId != this.fioAccountId) {
+      throw new Error("wrong fioAccountId");
+    }
     return this.fioBankTransactionModel.create(trcopy);
   }
   public async fetchAllTransactions(): Promise<IFioBankTransaction[]> {
     return this.fioBankTransactionModel.find();
+  }
+
+  public async removeTransactionRecord(id: string): Promise<boolean> {
+    const rr = await this.fioBankTransactionModel.findByIdAndRemove(id);
+    return rr != null;
+  }
+
+  public async getLastTransaction(): Promise<IFioBankTransaction | null> {
+    return this.fioBankTransactionModel.findOne({fioAccountId:this.fioAccountId}).sort({fioId:-1});
+  }
+
+  public async getLastId(): Promise<number | null> {
+    const rec = await this.fioBankSyncInfoModel.findOne({fioAccountId:this.fioAccountId}); 
+    if (rec) {
+      return rec.idLastDownload;
+    } 
+    return null;
+  }
+  public async setLastId(lastCorrectId: number): Promise<boolean> {
+    const nd = await this.fioBankSyncInfoModel.findOneAndUpdate({fioAccountId:this.fioAccountId},{idLastDownload: lastCorrectId}, {
+      new: true,
+      upsert: true // Make this update into an upsert
+    });
+    return true;
+  }
+  public async resetLastId(): Promise<boolean> {
+    const nd = await this.fioBankSyncInfoModel.findOneAndUpdate({fioAccountId:this.fioAccountId},{idLastDownload: null}, {
+      new: true,
+      upsert: true // Make this update into an upsert
+    });
+    return true;
   }
 }

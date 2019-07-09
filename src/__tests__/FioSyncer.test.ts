@@ -2,6 +2,7 @@ import { FetchMock } from 'jest-fetch-mock';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import * as mongoose from 'mongoose';
 import { FioDataStore, FioReader, FioSyncer } from '../index';
+import { IFioBankTransaction } from '../fio_ds';
 const fetchMock = fetch as FetchMock;
 
 
@@ -33,9 +34,133 @@ afterEach( () => {
   return mongod.stop()
 });
 
+test('My FioSyncer - first start',  async () => {
+  const muri = await mongod.getConnectionString();
+  const mc = await createMongooseConnection(muri);
+  const fds = new FioDataStore(mc,"a1");
+  const frd = new FioReader("test_token");
+  const fs = new FioSyncer(frd,fds);
+
+  expect(await fs.isFirstSync()).toBe(true);
+
+  //check recover
+  const tt = await fds.storeTransactionRecord( {
+    fioId: 1,
+    // tslint:disable-next-line:object-literal-sort-keys
+    fioAccountId: "a1",
+    date: "2019-10-10",
+    amount: 100,
+    currency: "CZK",
+    type: "nic",
+  } as IFioBankTransaction);
+  expect(await fs.isFirstSync()).toBe(false);
+  await fds.removeTransactionRecord(tt._id)
+  expect(await fs.isFirstSync()).toBe(true);
+
+  await fds.setLastId(3);
+  expect(await fs.isFirstSync()).toBe(false);
+  await fds.resetLastId();
+  expect(await fs.isFirstSync()).toBe(true);
+
+  //start sequence A (db is empty)- get now day -1, rememeber lastid of last tr of the day (as lastid).
+  //start sequence A2 (normal recovery), lastId is same as lasttr_id;
+  //start sequence B (db has no lastId, but have transactions), get last tr, remember last tr as lastid.
+  //start sequence C (db has no trs, but have lastid), do nothing;
+  //start sequence D (lastid != lasttr_id) => fails!
+  // - check seq A:
 
 
-test('My FioSyncer - start empty',  async () => {
+  fetchMock.resetMocks();
+  fetchMock.mockResponseOnce(JSON.stringify(
+    {
+      "accountStatement": {
+        "info": {
+          "accountId": "2901223235",
+          "bankId": "2010",
+          "currency": "CZK",
+          "iban": "CZ8120100000002901223235",
+          "bic": "FIOBCZPPXXX",
+          "openingBalance": 1674819.38,
+          "closingBalance": 1690219.38,
+          "dateStart": "2019-01-31+0100",
+          "dateEnd": "2019-01-31+0100",
+          "yearList": null,
+          "idList": null,
+          "idFrom": 18247244228,
+          "idTo": 18247668131,
+          "idLastDownload": null
+        },
+        "transactionList": {
+          "transaction":[]
+        }
+      }
+    }
+  )).mockResponseOnce(""); 
+    
+  expect(await fs.recoverSync(new Date("2019-01-31"))).toBe(true);
+ 
+
+  expect(fetchMock.mock.calls.length).toBe(2);
+  expect(fetchMock.mock.calls[0][0]).toBe("https://www.fio.cz/ib_api/rest/periods/test_token/2019-01-24/2019-01-31/transactions.json");
+  expect(fetchMock.mock.calls[1][0]).toBe("https://www.fio.cz/ib_api/rest/set-last-id/test_token/18247668131/");
+
+
+  // - check seq A2:
+  fetchMock.resetMocks();
+  fetchMock.mockResponseOnce("");
+
+  const tt2 = await fds.storeTransactionRecord( {
+    fioId: 1234,
+    // tslint:disable-next-line:object-literal-sort-keys
+    fioAccountId: "a1",
+    date: "2019-10-10",
+    amount: 100,
+    currency: "CZK",
+    type: "nic",
+  } as IFioBankTransaction);
+  await fds.setLastId(1234);
+  expect(await fs.recoverSync(new Date("2019-01-31"))).toBe(true);
+  expect(fetchMock.mock.calls.length).toBe(1);
+  expect(fetchMock.mock.calls[0][0]).toBe("https://www.fio.cz/ib_api/rest/set-last-id/test_token/1234/");
+
+  // - check seq B:
+  fetchMock.resetMocks();
+  fetchMock.mockResponseOnce("");
+  await fds.resetLastId();
+  expect(await fs.recoverSync(new Date("2019-01-31"))).toBe(true);
+  expect(fetchMock.mock.calls.length).toBe(1);
+  expect(fetchMock.mock.calls[0][0]).toBe("https://www.fio.cz/ib_api/rest/set-last-id/test_token/1234/");
+
+
+  // - check seq C:
+  fetchMock.resetMocks();
+  fetchMock.mockResponseOnce("");
+  await fds.setLastId(1235);
+  await fds.removeTransactionRecord(tt2._id)
+  expect(await fs.recoverSync(new Date("2019-01-31"))).toBe(true);
+  expect(fetchMock.mock.calls.length).toBe(1);
+  expect(fetchMock.mock.calls[0][0]).toBe("https://www.fio.cz/ib_api/rest/set-last-id/test_token/1235/");
+
+  // - check seq D:
+  fetchMock.resetMocks();
+  fetchMock.mockResponseOnce(""); //never call
+  const tt3 = await fds.storeTransactionRecord( {
+    fioId: 1235,
+    // tslint:disable-next-line:object-literal-sort-keys
+    fioAccountId: "a1",
+    date: "2019-10-10",
+    amount: 100,
+    currency: "CZK",
+    type: "nic",
+  } as IFioBankTransaction);
+  await fds.setLastId(1234);
+  expect(await fs.recoverSync(new Date("2019-01-31"))).toBe(false);
+  expect(fetchMock.mock.calls.length).toBe(0);
+  
+});
+
+
+test.skip('My FioSyncer - sync day',  async () => {
   fetchMock.resetMocks();
   fetchMock.mockResponseOnce(
     '{"accountStatement":{"info":{"accountId":"23231","bankId":"2010","currency":"CZK","iban":"CZ81201000000023231","bic":"FIOBCZPPXXX","openingBalance":1.23,"closingBalance":1.42,"dateStart":"2019-06-21+0200","dateEnd":"2019-06-21+0200","yearList":null,"idList":null,"idFrom":null,"idTo":null,"idLastDownload":213131313},"transactionList":{"transaction":[]}}}',
@@ -43,7 +168,7 @@ test('My FioSyncer - start empty',  async () => {
 
   const muri = await mongod.getConnectionString();
   const mc = await createMongooseConnection(muri);
-  const fds = new FioDataStore(mc);
+  const fds = new FioDataStore(mc,"a1");
   const frd = new FioReader("<test_token>");
   const fs = new FioSyncer(frd,fds);
 

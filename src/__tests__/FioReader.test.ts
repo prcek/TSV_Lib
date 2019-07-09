@@ -27,3 +27,74 @@ test('My FioReader - GetPeriods', async () => {
   expect(fetchMock.mock.calls.length).toBe(1);
   // console.log(fetchMock.mock.calls[0]);
 });
+
+
+test('My FioReader - getLastId', async () => {
+  fetchMock.resetMocks();
+  fetchMock.mockResponseOnce(JSON.stringify(
+    {
+      "accountStatement": {
+        "info": {
+          "accountId": "2901223235",
+          "bankId": "2010",
+          "currency": "CZK",
+          "iban": "CZ8120100000002901223235",
+          "bic": "FIOBCZPPXXX",
+          "openingBalance": 1674819.38,
+          "closingBalance": 1690219.38,
+          "dateStart": "2019-01-31+0100",
+          "dateEnd": "2019-01-31+0100",
+          "yearList": null,
+          "idList": null,
+          "idFrom": 18247244228,
+          "idTo": 18247668131,
+          "idLastDownload": null
+        },
+        "transactionList": {
+          "transaction":[]
+        }
+      }
+    }
+  ));
+    
+  const fr = new FioReader('test_token');
+
+  const frr = await fr.getDayLastId(new Date("2019-01-31"));
+  expect(frr).toBe(18247668131);  
+  expect(fetchMock.mock.calls.length).toBe(1);
+  expect(fetchMock.mock.calls[0][0]).toBe("https://www.fio.cz/ib_api/rest/periods/test_token/2019-01-24/2019-01-31/transactions.json");
+
+
+  fetchMock.mockResponseOnce(JSON.stringify({
+    "accountStatement": {
+      "info": {
+        "accountId": "2901223235",
+        "bankId": "2010",
+        "currency": "CZK",
+        "iban": "CZ8120100000002901223235",
+        "bic": "FIOBCZPPXXX",
+        "openingBalance": 767768.21,
+        "closingBalance": 767768.21,
+        "dateStart": "2019-07-31+0200",
+        "dateEnd": "2019-07-31+0200",
+        "yearList": null,
+        "idList": null,
+        "idFrom": null,
+        "idTo": null,
+        "idLastDownload": null
+      },
+      "transactionList": {
+        "transaction": [
+          
+        ]
+      }
+    }
+  }));
+
+
+  const frr2 = await fr.getDayLastId(new Date("2019-07-31"));
+  expect(frr2).toBe(null);  
+  expect(fetchMock.mock.calls.length).toBe(2);
+  expect(fetchMock.mock.calls[1][0]).toBe("https://www.fio.cz/ib_api/rest/periods/test_token/2019-07-24/2019-07-31/transactions.json");
+
+});
