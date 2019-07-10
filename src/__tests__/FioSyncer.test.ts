@@ -2,8 +2,10 @@ import { FetchMock } from 'jest-fetch-mock';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import * as mongoose from 'mongoose';
 import { FioDataStore, FioReader, FioSyncer } from '../index';
+// tslint:disable-next-line:ordered-imports
 import { IFioBankTransaction, FioTransactionProcessingStatus, FioTransactionType } from '../fio_ds';
-import { td_jsonDay1, td_fioAccountId, td_jsonDay0, td_jsonDayEmpty, td_jsonTrTypes } from '../__test_data__/data';
+// tslint:disable-next-line:ordered-imports
+import { tdJsonDay1, tdFioAccountId, tdJsonDay0, tdJsonDayEmpty, tdJsonTrTypes } from '../__test_data__/data';
 
 const fetchMock = fetch as FetchMock;
 
@@ -44,7 +46,7 @@ test('My FioSyncer - first start',  async () => {
 
   expect(await fs.isFirstSync()).toBe(true);
 
-  //check recover
+  // check recover
   const tt = await fds.storeTransactionRecord( {
     ps: FioTransactionProcessingStatus.NEW,
     fioId: 1,
@@ -64,17 +66,17 @@ test('My FioSyncer - first start',  async () => {
   await fds.resetLastId();
   expect(await fs.isFirstSync()).toBe(true);
 
-  //start sequence A (db is empty)- get now day -1, rememeber lastid of last tr of the day (as lastid).
-  //start sequence A2 (normal recovery), lastId is same as lasttr_id;
-  //start sequence B (db has no lastId, but have transactions), get last tr, remember last tr as lastid.
-  //start sequence C (db has no trs, but have lastid), do nothing;
-  //start sequence D (lastid != lasttr_id) => fails!
+  // start sequence A (db is empty)- get now day -1, rememeber lastid of last tr of the day (as lastid).
+  // start sequence A2 (normal recovery), lastId is same as lasttr_id;
+  // start sequence B (db has no lastId, but have transactions), get last tr, remember last tr as lastid.
+  // start sequence C (db has no trs, but have lastid), do nothing;
+  // start sequence D (lastid != lasttr_id) => fails!
   // - check seq A:
 
   
 
   fetchMock.resetMocks();
-  fetchMock.mockResponseOnce(td_jsonDay0).mockResponseOnce(""); 
+  fetchMock.mockResponseOnce(tdJsonDay0).mockResponseOnce(""); 
     
   expect(await fs.recoverSync(new Date("2019-01-31"))).toBe(true);
  
@@ -122,7 +124,7 @@ test('My FioSyncer - first start',  async () => {
 
   // - check seq D:
   fetchMock.resetMocks();
-  fetchMock.mockResponseOnce(""); //never call
+  fetchMock.mockResponseOnce(""); // never call
   const tt3 = await fds.storeTransactionRecord( {
     fioId: 1235,
     // tslint:disable-next-line:object-literal-sort-keys
@@ -141,22 +143,22 @@ test('My FioSyncer - first start',  async () => {
 
 test('My FioSyncer - sync day',  async () => {
   fetchMock.resetMocks();
-  fetchMock.mockResponseOnce(td_jsonDay1);
+  fetchMock.mockResponseOnce(tdJsonDay1);
 
 
   const muri = await mongod.getConnectionString();
   const mc = await createMongooseConnection(muri);
-  const fds = new FioDataStore(mc, td_fioAccountId);
+  const fds = new FioDataStore(mc, tdFioAccountId);
   const frd = new FioReader("test_token");
   const fs = new FioSyncer(frd,fds);
 
-  let res = await fs.syncDate(new Date("2019-07-08"));
+  const res = await fs.syncDate(new Date("2019-07-08"));
   expect(res).toBe(true);
   expect(fetchMock.mock.calls[0][0]).toBe("https://www.fio.cz/ib_api/rest/periods/test_token/2019-07-08/2019-07-08/transactions.json");
   const atrs = await fds.fetchAllTransactions();
   expect(atrs.length).toBe(3);
-  expect(atrs[0].fioAccountId).toBe(td_fioAccountId);
-  expect(atrs[0]).toMatchObject({fioAccountId:td_fioAccountId});
+  expect(atrs[0].fioAccountId).toBe(tdFioAccountId);
+  expect(atrs[0]).toMatchObject({fioAccountId:tdFioAccountId});
  // console.log(atrs);
 
   mc.close();
@@ -166,12 +168,12 @@ test('My FioSyncer - sync day',  async () => {
 
 test('My FioSyncer - start (recovery A), sync last - one fetch, 2 empty',  async () => {
   fetchMock.resetMocks();
-  fetchMock.mockResponseOnce(td_jsonDay1).mockResponseOnce("");
+  fetchMock.mockResponseOnce(tdJsonDay1).mockResponseOnce("");
 
 
   const muri = await mongod.getConnectionString();
   const mc = await createMongooseConnection(muri);
-  const fds = new FioDataStore(mc, td_fioAccountId);
+  const fds = new FioDataStore(mc, tdFioAccountId);
   const frd = new FioReader("test_token");
   frd.test_disableThrottling();
   
@@ -181,19 +183,19 @@ test('My FioSyncer - start (recovery A), sync last - one fetch, 2 empty',  async
   expect(await p).toBe(true);
   
 
-  fetchMock.mockResponseOnce(td_jsonDay1);
+  fetchMock.mockResponseOnce(tdJsonDay1);
   expect(await fs.syncLast()).toBe(true);
 
-  const atrs = await fds.fetchAllTransactions();  //last as first
+  const atrs = await fds.fetchAllTransactions();  // last as first
   expect(atrs.length).toBe(3);
   expect(await fds.getLastId()).toBe(atrs[0].fioId);
   expect(await fs.isFirstSync()).toBe(false);
 
 
-  fetchMock.mockResponseOnce(td_jsonDayEmpty);
+  fetchMock.mockResponseOnce(tdJsonDayEmpty);
   expect(await fs.syncLast()).toBe(true);
 
-  fetchMock.mockResponseOnce(td_jsonDayEmpty);
+  fetchMock.mockResponseOnce(tdJsonDayEmpty);
   expect(await fs.syncLast()).toBe(true);
 
   mc.close();
@@ -204,15 +206,15 @@ test('My FioSyncer - start (recovery A), sync last - one fetch, 2 empty',  async
 
 test('My FioSyncer - transaction types',  async () => {
   fetchMock.resetMocks();
-  fetchMock.mockResponseOnce(td_jsonTrTypes);
+  fetchMock.mockResponseOnce(tdJsonTrTypes);
   const muri = await mongod.getConnectionString();
   const mc = await createMongooseConnection(muri);
-  const fds = new FioDataStore(mc, td_fioAccountId);
+  const fds = new FioDataStore(mc, tdFioAccountId);
   const frd = new FioReader("test_token");
   const fs = new FioSyncer(frd,fds);
 
   expect(await fs.syncLast()).toBe(true);
-  const atrs = await fds.fetchAllTransactions();  //last as first
+  const atrs = await fds.fetchAllTransactions();  // last as first
   expect(atrs.length).toBe(1);
   expect(atrs[0].type).toBe(FioTransactionType.IN);
 

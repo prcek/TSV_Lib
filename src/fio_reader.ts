@@ -83,8 +83,8 @@ export interface IFioInfo {
 export class FioReader {
   private apiUrl = 'https://www.fio.cz/ib_api/rest/';
   private apiToken: string;
-  private _thdisabled = false;
-  private _thfetch =  pThrottle( (url : string) => {
+  private thdisabled = false;
+  private thfetchInternal =  pThrottle( (url : string) => {
     return fetch(url);
   }, 1, 30000);
   
@@ -95,7 +95,7 @@ export class FioReader {
 
 
   public test_disableThrottling(): void {
-    this._thdisabled = true;
+    this.thdisabled = true;
   }
 
   public async getLast(): Promise<IFioRecord> {
@@ -116,9 +116,9 @@ export class FioReader {
   }
 
   public async setLastId(lastId: number): Promise<boolean> {
-    //https://www.fio.cz/ib_api/rest/set-last-id/{token}/{id}/
+    // https://www.fio.cz/ib_api/rest/set-last-id/{token}/{id}/
     const r = await fetch(this.apiUrl + 'set-last-id/' + this.apiToken + '/'+lastId +'/');
-    return r.status == 200;
+    return r.status === 200;
   }
 
 
@@ -137,7 +137,7 @@ export class FioReader {
     return this.raw2fr(js);
   }
   private async thfetch(url: string): Promise<Response> {
-    return this._thdisabled ? fetch(url): this._thfetch(url);
+    return this.thdisabled ? fetch(url): this.thfetchInternal(url);
   }
 
   private async _getRaw(): Promise<string> {

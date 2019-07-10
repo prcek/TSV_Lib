@@ -1,6 +1,6 @@
+import { MongoError } from 'mongodb';
 import * as mongoose  from 'mongoose';
 import * as R from 'ramda';
-import { MongoError } from 'mongodb';
 
 export enum FioTransactionProcessingStatus {
   NEW="NEW", IGNORE="IGNORE", ERROR="ERROR", SOLVED="SOLVED"
@@ -92,7 +92,7 @@ export class FioDataStore {
   }
   public async storeTransactionRecord(tr: IFioBankTransaction): Promise<IFioBankTransaction> {
     const trcopy =  R.omit(['_id'],tr);
-    if (tr.fioAccountId != this.fioAccountId) {
+    if (tr.fioAccountId !== this.fioAccountId) {
       throw new Error("wrong fioAccountId");
     }
 
@@ -108,9 +108,9 @@ export class FioDataStore {
         throw e;
       }
     }
-    const old_tr = await this.fioBankTransactionModel.findOne({fioId:trcopy.fioId, fioAccountId:this.fioAccountId});
-    if (old_tr !==null) {
-      return old_tr;
+    const oldTr = await this.fioBankTransactionModel.findOne({fioId:trcopy.fioId, fioAccountId:this.fioAccountId});
+    if (oldTr !==null) {
+      return oldTr;
     }
     throw Error("can't insert tr");
   }

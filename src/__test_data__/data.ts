@@ -1,17 +1,17 @@
-export const td_fioAccountId = "2901234567";
-export const td_fioIBAN = "CZ812010000000"+td_fioAccountId;
-export const td_fakeUser1_name = "Novák Jiří,Ing.";
-export const td_fakeUser2_name = "Martina Bronzová";
-export const td_fakeUser3_name = "Kovář Marek";
+export const tdFioAccountId = "2901234567";
+export const tdFioIBAN = "CZ812010000000"+tdFioAccountId;
+export const tdFakeUser1Name = "Novák Jiří,Ing.";
+export const tdFakeUser2Name = "Martina Bronzová";
+export const tdFakeUser3Name = "Kovář Marek";
 
-export const td_jsonDay0 = JSON.stringify(
+export const tdJsonDay0 = JSON.stringify(
   {
     "accountStatement": {
       "info": {
-        "accountId": td_fioAccountId,
+        "accountId": tdFioAccountId,
         "bankId": "2010",
         "currency": "CZK",
-        "iban": td_fioIBAN,
+        "iban": tdFioIBAN,
         "bic": "FIOBCZPPXXX",
         "openingBalance": 1674819.38,
         "closingBalance": 1690219.38,
@@ -30,14 +30,14 @@ export const td_jsonDay0 = JSON.stringify(
   }
 );
 
-export const td_jsonDay1 = JSON.stringify(
+export const tdJsonDay1 = JSON.stringify(
     {
         "accountStatement": {
           "info": {
-            "accountId": td_fioAccountId,
+            "accountId": tdFioAccountId,
             "bankId": "2010",
             "currency": "CZK",
-            "iban": td_fioIBAN,
+            "iban": tdFioIBAN,
             "bic": "FIOBCZPPXXX",
             "openingBalance": 749215.21,
             "closingBalance": 769248.21,
@@ -78,7 +78,7 @@ export const td_jsonDay1 = JSON.stringify(
                   "id": 2
                 },
                 "column10": {
-                  "value": td_fakeUser1_name,
+                  "value": tdFakeUser1Name,
                   "name": "Název protiúčtu",
                   "id": 10
                 },
@@ -104,12 +104,12 @@ export const td_jsonDay1 = JSON.stringify(
                 },
                 "column6": null,
                 "column7": {
-                  "value": td_fakeUser1_name,
+                  "value": tdFakeUser1Name,
                   "name": "Uživatelská identifikace",
                   "id": 7
                 },
                 "column16": {
-                  "value": "Základní středoškolské taneční, kurz 8,"+td_fakeUser1_name,
+                  "value": "Základní středoškolské taneční, kurz 8,"+tdFakeUser1Name,
                   "name": "Zpráva pro příjemce",
                   "id": 16
                 },
@@ -121,7 +121,7 @@ export const td_jsonDay1 = JSON.stringify(
                 "column9": null,
                 "column18": null,
                 "column25": {
-                  "value": td_fakeUser1_name,
+                  "value": tdFakeUser1Name,
                   "name": "Komentář",
                   "id": 25
                 },
@@ -159,7 +159,7 @@ export const td_jsonDay1 = JSON.stringify(
                   "id": 2
                 },
                 "column10": {
-                  "value": td_fakeUser2_name,
+                  "value": tdFakeUser2Name,
                   "name": "Název protiúčtu",
                   "id": 10
                 },
@@ -181,12 +181,12 @@ export const td_jsonDay1 = JSON.stringify(
                 },
                 "column6": null,
                 "column7": {
-                  "value": td_fakeUser2_name,
+                  "value": tdFakeUser2Name,
                   "name": "Uživatelská identifikace",
                   "id": 7
                 },
                 "column16": {
-                  "value": "taneční "+td_fakeUser2_name,
+                  "value": "taneční "+tdFakeUser2Name,
                   "name": "Zpráva pro příjemce",
                   "id": 16
                 },
@@ -198,7 +198,7 @@ export const td_jsonDay1 = JSON.stringify(
                 "column9": null,
                 "column18": null,
                 "column25": {
-                  "value": td_fakeUser2_name,
+                  "value": tdFakeUser2Name,
                   "name": "Komentář",
                   "id": 25
                 },
@@ -236,7 +236,7 @@ export const td_jsonDay1 = JSON.stringify(
                   "id": 2
                 },
                 "column10": {
-                  "value": td_fakeUser3_name,
+                  "value": tdFakeUser3Name,
                   "name": "Název protiúčtu",
                   "id": 10
                 },
@@ -262,7 +262,7 @@ export const td_jsonDay1 = JSON.stringify(
                 },
                 "column6": null,
                 "column7": {
-                  "value": td_fakeUser3_name,
+                  "value": tdFakeUser3Name,
                   "name": "Uživatelská identifikace",
                   "id": 7
                 },
@@ -279,7 +279,7 @@ export const td_jsonDay1 = JSON.stringify(
                 "column9": null,
                 "column18": null,
                 "column25": {
-                  "value": td_fakeUser3_name,
+                  "value": tdFakeUser3Name,
                   "name": "Komentář",
                   "id": 25
                 },
@@ -296,14 +296,14 @@ export const td_jsonDay1 = JSON.stringify(
       }
 );
 
-export const td_jsonDayEmpty = JSON.stringify(
+export const tdJsonDayEmpty = JSON.stringify(
   {
     "accountStatement": {
       "info": {
-        "accountId": td_fioAccountId,
+        "accountId": tdFioAccountId,
         "bankId": "2010",
         "currency": "CZK",
-        "iban": td_fioIBAN,
+        "iban": tdFioIBAN,
         "bic": "FIOBCZPPXXX",
         "openingBalance": 714717.21,
         "closingBalance": 714717.21,
@@ -325,14 +325,14 @@ export const td_jsonDayEmpty = JSON.stringify(
 );
 
 
-export const td_jsonTrTypes = JSON.stringify(
+export const tdJsonTrTypes = JSON.stringify(
   {
     "accountStatement": {
       "info": {
-        "accountId": td_fioAccountId,
+        "accountId": tdFioAccountId,
         "bankId": "2010",
         "currency": "CZK",
-        "iban": td_fioIBAN,
+        "iban": tdFioIBAN,
         "bic": "FIOBCZPPXXX",
         "openingBalance": 1674819.38,
         "closingBalance": 1690219.38,
@@ -373,7 +373,7 @@ export const td_jsonTrTypes = JSON.stringify(
               "id": 2
             },
             "column10": {
-              "value": td_fakeUser3_name,
+              "value": tdFakeUser3Name,
               "name": "Název protiúčtu",
               "id": 10
             },
@@ -399,7 +399,7 @@ export const td_jsonTrTypes = JSON.stringify(
             },
             "column6": null,
             "column7": {
-              "value": td_fakeUser3_name,
+              "value": tdFakeUser3Name,
               "name": "Uživatelská identifikace",
               "id": 7
             },
@@ -416,7 +416,7 @@ export const td_jsonTrTypes = JSON.stringify(
             "column9": null,
             "column18": null,
             "column25": {
-              "value": td_fakeUser3_name,
+              "value": tdFakeUser3Name,
               "name": "Komentář",
               "id": 25
             },

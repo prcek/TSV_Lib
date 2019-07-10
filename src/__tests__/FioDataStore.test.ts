@@ -1,6 +1,6 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import * as mongoose from 'mongoose';
-import { FioDataStore, IFioBankTransaction, FioTransactionProcessingStatus, FioTransactionType } from '../fio_ds';
+import { FioDataStore, FioTransactionProcessingStatus, FioTransactionType, IFioBankTransaction } from '../fio_ds';
 
 
 const mongod = new MongoMemoryServer({debug:false, autoStart:false});
@@ -138,7 +138,7 @@ test('FioDataStore - duplicate write', async () => {
   const atr2  = await fds.fetchAllTransactions();
   expect(atr2.length).toBe(1);
 
-  const ltr_dup = await fds.storeTransactionRecord( {
+  const ltrDup = await fds.storeTransactionRecord( {
     ps: FioTransactionProcessingStatus.NEW,
     fioId: 3,
     fioAccountId: "a1",
@@ -148,9 +148,9 @@ test('FioDataStore - duplicate write', async () => {
     type: FioTransactionType.IN,
     rawData: "",
   } as IFioBankTransaction);
-  expect(ltr_dup).toMatchObject({fioId:3});
+  expect(ltrDup).toMatchObject({fioId:3});
 
-  expect(ltr._id.toString()).toBe(ltr_dup._id.toString());
+  expect(ltr._id.toString()).toBe(ltrDup._id.toString());
 
   const atr3  = await fds.fetchAllTransactions();
   expect(atr3.length).toBe(1);

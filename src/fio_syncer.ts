@@ -16,9 +16,9 @@ export class FioSyncer {
   //  }
     public async isFirstSync(): Promise<boolean> {
         const lastId = await this.store.getLastId();
-        if (lastId != null) return false;
+        if (lastId != null) { return false; }
         const lastTr = await this.store.getLastTransaction();
-        if (lastTr) return false;
+        if (lastTr) { return false; }
         return true;
     }
 
@@ -28,15 +28,15 @@ export class FioSyncer {
 
         // first run
         if (lastId === null && lastTr === null) {
-            const lastId = await this.reader.getDayLastId(fromDay);
-            if (lastId == null) {
+            const rlastId = await this.reader.getDayLastId(fromDay);
+            if (rlastId == null) {
                 return false;
             }
-            return this.reader.setLastId(lastId);
+            return this.reader.setLastId(rlastId);
         } 
 
         // normal recovery
-        if (lastId !== null && lastTr !==null && lastTr.fioId == lastId)  {
+        if (lastId !== null && lastTr !==null && lastTr.fioId === lastId)  {
             return this.reader.setLastId(lastId);;
         }
 
@@ -54,7 +54,7 @@ export class FioSyncer {
 
 
 
-        return false;  //TODO
+        return false;  //  TODO
     }
 
     public async syncDate(date: Date): Promise<boolean> {
@@ -71,7 +71,7 @@ export class FioSyncer {
         if (trs.accountStatement.transactionList.transaction.length) {
             await Promise.all(trs.accountStatement.transactionList.transaction.map( t => this.storeTr(trs.accountStatement.info, t, FioTransactionProcessingStatus.NEW)));
 
-            //store lastID:
+            // store lastID:
             if (trs.accountStatement.info.idTo !== null) {
                 await this.store.setLastId(trs.accountStatement.info.idTo);
             } else {
@@ -81,7 +81,7 @@ export class FioSyncer {
 
             return true;
         } else {
-           if (trs.accountStatement.info.idLastDownload == await this.store.getLastId()) {
+           if (trs.accountStatement.info.idLastDownload === await this.store.getLastId()) {
                // ok
            } else {
                throw Error('no tr, but lastDownload id is different');
@@ -99,9 +99,11 @@ export class FioSyncer {
            if (!isNaN(n)) {
                d = new Date(n);
            }
+        // tslint:disable-next-line:no-empty
         } catch (e) {
-          
         }
+          
+        
 
         let tt = FioTransactionType.UNKNOWN;
         switch(t.type) {
@@ -114,11 +116,11 @@ export class FioSyncer {
       
         return this.store.storeTransactionRecord({
             _id: null,
-            ps: ps,
+            ps,
             fioId: t.id,
             // tslint:disable-next-line:object-literal-sort-keys
             fioAccountId: ainfo.accountId,
-            date: d, //t.date,
+            date: d, // t.date,
             amount: t.amount,
             currency: t.currency,
             type: tt,
