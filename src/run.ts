@@ -1,6 +1,6 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import * as mongoose from 'mongoose';
-import { FioDataStore, FioReader } from './index';
+import { FioDataStore, FioReader, FioSyncer } from './index';
 // tslint:disable-next-line:no-var-requires
 require('dotenv').config();
 
@@ -24,6 +24,23 @@ async function startLocalMongoDB(): Promise<mongoose.Connection> {
   return mongooseConnection;
 }
 
+
+async function connectTestMongoDB(): Promise<mongoose.Connection> {
+  const mongoUri: string = process.env.MONGO_URI || 'missing'
+  const mongooseOpts = {
+    // options for mongoose 4.11.3 and above
+    autoReconnect: true,
+    reconnectTries: Number.MAX_VALUE,
+    // tslint:disable-next-line:object-literal-sort-keys
+    reconnectInterval: 1000,
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useFindAndModify: false,
+  };
+  const mongooseConnection = await mongoose.createConnection(mongoUri, mongooseOpts);
+  console.log(`Mongoose successfully connected to ${mongoUri}`);
+  return mongooseConnection;
+}
 /* 
 const fr = new FioReader(process.env.FIO_TOKEN || 'missing');
 
@@ -41,12 +58,16 @@ startLocalMongoDB().then(async mc => {
   return 'ok';
 });
 */
-console.log('create schema');
-const sh = new mongoose.Schema({
-  fioId: Number,
-  fioAccountId: String,
-  currency: String,
-}).index({fioId: 1, fioAccountId: 1}, { unique: true });
 
+connectTestMongoDB().then(async mc => {
+  const fds = new FioDataStore(mc,process.env.FIO_ACCOUNT_ID || 'missing');
+  const info = await fds.getMongoVersion();
+  console.log(info);
 
-console.log('create schema done');
+  const frd = new FioReader(process.env.FIO_TOKEN || 'missing');
+  const fs = new FioSyncer(frd,fds);
+  console.log("isFirstSync", await fs.isFirstSync());
+  console.log("recovery", await fs.recoverSync(new Date("2019-07-01")));
+  console.log("syncLast", await fs.syncLast());
+  mc.close();
+});
