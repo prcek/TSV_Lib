@@ -1,4 +1,4 @@
-export const td_fioAccountId = "2901223235";
+export const td_fioAccountId = "2901234567";
 export const td_fioIBAN = "CZ812010000000"+td_fioAccountId;
 export const td_fakeUser1_name = "Novák Jiří,Ing.";
 export const td_fakeUser2_name = "Martina Bronzová";
@@ -46,7 +46,7 @@ export const td_jsonDay1 = JSON.stringify(
             "yearList": null,
             "idList": null,
             "idFrom": 21369401836,
-            "idTo": 21370646892,
+            "idTo": 21369426788,
             "idLastDownload": 21369372513
           },
           "transactionList": {
@@ -294,4 +294,32 @@ export const td_jsonDay1 = JSON.stringify(
           }
         }
       }
+);
+
+export const td_jsonDayEmpty = JSON.stringify(
+  {
+    "accountStatement": {
+      "info": {
+        "accountId": td_fioAccountId,
+        "bankId": "2010",
+        "currency": "CZK",
+        "iban": td_fioIBAN,
+        "bic": "FIOBCZPPXXX",
+        "openingBalance": 714717.21,
+        "closingBalance": 714717.21,
+        "dateStart": "2019-07-10+0200",
+        "dateEnd": "2019-07-10+0200",
+        "yearList": null,
+        "idList": null,
+        "idFrom": null,
+        "idTo": null,
+        "idLastDownload": 21369426788
+      },
+      "transactionList": {
+        "transaction": [
+          
+        ]
+      }
+    }
+  }
 );

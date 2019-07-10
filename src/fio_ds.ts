@@ -70,7 +70,7 @@ export class FioDataStore {
     return this.fioBankTransactionModel.create(trcopy);
   }
   public async fetchAllTransactions(): Promise<IFioBankTransaction[]> {
-    return this.fioBankTransactionModel.find();
+    return this.fioBankTransactionModel.find({fioAccountId:this.fioAccountId}).sort({fioId:-1});
   }
 
   public async removeTransactionRecord(id: string): Promise<boolean> {

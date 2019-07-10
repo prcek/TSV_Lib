@@ -66,6 +66,31 @@ export class FioSyncer {
         return true;
     }
 
+    public async syncLast(): Promise<boolean> {
+        const trs = await this.reader.getLast();
+        if (trs.accountStatement.transactionList.transaction.length) {
+            await Promise.all(trs.accountStatement.transactionList.transaction.map( t => this.storeTr(trs.accountStatement.info, t)));
+
+            //store lastID:
+            if (trs.accountStatement.info.idTo !== null) {
+                await this.store.setLastId(trs.accountStatement.info.idTo);
+            } else {
+                throw Error('missing idTo!');
+            }
+           
+
+            return true;
+        } else {
+           if (trs.accountStatement.info.idLastDownload == await this.store.getLastId()) {
+               // ok
+           } else {
+               throw Error('no tr, but lastDownload id is different');
+           }
+        }
+        return true;
+    }
+
+
     private async storeTr(ainfo:IFioInfo, t: IFioTransaction) {
         return this.store.storeTransactionRecord({
             _id: null,

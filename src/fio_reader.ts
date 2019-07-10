@@ -82,13 +82,19 @@ export interface IFioInfo {
 export class FioReader {
   private apiUrl = 'https://www.fio.cz/ib_api/rest/';
   private apiToken: string;
-  private thfetch =  pThrottle( (url : string) => {
+  private _thdisabled = false;
+  private _thfetch =  pThrottle( (url : string) => {
     return fetch(url);
   }, 1, 30000);
   
   
   constructor(token: string) {
     this.apiToken = token;
+  }
+
+
+  public test_disableThrottling(): void {
+    this._thdisabled = true;
   }
 
   public async getLast(): Promise<IFioRecord> {
@@ -129,6 +135,9 @@ export class FioReader {
     const js = await r.json();
     return this.raw2fr(js);
   }
+  private async thfetch(url: string): Promise<Response> {
+    return this._thdisabled ? fetch(url): this._thfetch(url);
+  }
 
   private async _getRaw(): Promise<string> {
     // const r = await fetch('https://jsonplaceholder.typicode.com/todos/1');
@@ -139,7 +148,6 @@ export class FioReader {
     // console.log(js.accountStatement.transactionList.transaction);
     return jt;
   }
-
   private date2fioParam(d: Date): string {
     const yp = d
       .getUTCFullYear()
