@@ -57,7 +57,6 @@ test('My FioDataStore - list,store,list',  async () => {
 
   const r = {
     fioId: 1,
-    // tslint:disable-next-line:object-literal-sort-keys
     fioAccountId: "a1",
     date: "2019-10-10",
     amount: 100,
@@ -71,7 +70,6 @@ test('My FioDataStore - list,store,list',  async () => {
 
   const ltr = await fds.storeTransactionRecord( {
     fioId: 3,
-    // tslint:disable-next-line:object-literal-sort-keys
     fioAccountId: "a1",
     date: "2019-10-12",
     amount: 100,
@@ -82,7 +80,6 @@ test('My FioDataStore - list,store,list',  async () => {
 
   await fds.storeTransactionRecord( {
     fioId: 2,
-    // tslint:disable-next-line:object-literal-sort-keys
     fioAccountId: "a1",
     date: "2019-10-11",
     amount: 100,
@@ -117,4 +114,45 @@ test('My FioDataStore - start empty, save lastid, getlastid',  async () => {
   expect(await fds.getLastId()).toBe(null);
   expect(await fds2.getLastId()).toBe(3);
   
+});
+
+test('FioDataStore - duplicate write', async () => {
+
+  const muri = await mongod.getConnectionString();
+  const mc = await createMongooseConnection(muri);
+  const fds = new FioDataStore(mc,"a1");
+  const atr  = await fds.fetchAllTransactions();
+  expect(atr.length).toBe(0);
+
+
+  const ltr = await fds.storeTransactionRecord( {
+    fioId: 3,
+    fioAccountId: "a1",
+    date: "2019-10-12",
+    amount: 100,
+    currency: "CZK",
+    type: "nic",
+  } as IFioBankTransaction);
+
+
+  const atr2  = await fds.fetchAllTransactions();
+  expect(atr2.length).toBe(1);
+
+  const ltr_dup = await fds.storeTransactionRecord( {
+    fioId: 3,
+    fioAccountId: "a1",
+    date: "2019-10-12",
+    amount: 100,
+    currency: "CZK",
+    type: "nic",
+  } as IFioBankTransaction);
+  expect(ltr_dup).toMatchObject({fioId:3});
+
+  expect(ltr._id.toString()).toBe(ltr_dup._id.toString());
+
+  const atr3  = await fds.fetchAllTransactions();
+  expect(atr3.length).toBe(1);
+
+  mc.close();
+
 });

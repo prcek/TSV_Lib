@@ -1,5 +1,6 @@
 import * as mongoose  from 'mongoose';
 import * as R from 'ramda';
+import { MongoError } from 'mongodb';
 
 export interface IFioBankTransaction {
     _id: any;
@@ -79,7 +80,24 @@ export class FioDataStore {
     if (tr.fioAccountId != this.fioAccountId) {
       throw new Error("wrong fioAccountId");
     }
-    return this.fioBankTransactionModel.create(trcopy);
+
+    try {
+      const str = await this.fioBankTransactionModel.create(trcopy);
+      return str;
+    } catch (e) {
+      if(e instanceof MongoError) {
+        if (e.code !== 11000) {  // ignore duplicate
+          throw e;
+        }
+      } else {
+        throw e;
+      }
+    }
+    const old_tr = await this.fioBankTransactionModel.findOne({fioId:trcopy.fioId, fioAccountId:this.fioAccountId});
+    if (old_tr !==null) {
+      return old_tr;
+    }
+    throw Error("can't insert tr");
   }
   public async fetchAllTransactions(): Promise<IFioBankTransaction[]> {
     return this.fioBankTransactionModel.find({fioAccountId:this.fioAccountId}).sort({fioId:-1});
