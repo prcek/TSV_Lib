@@ -3,6 +3,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import * as mongoose from 'mongoose';
 import { FioDataStore, FioReader, FioSyncer } from '../index';
 import { IFioBankTransaction } from '../fio_ds';
+import { td_jsonDay1, td_fioAccountId, td_jsonDay0 } from '../__test_data__/data';
 const fetchMock = fetch as FetchMock;
 
 
@@ -71,31 +72,7 @@ test('My FioSyncer - first start',  async () => {
 
 
   fetchMock.resetMocks();
-  fetchMock.mockResponseOnce(JSON.stringify(
-    {
-      "accountStatement": {
-        "info": {
-          "accountId": "2901223235",
-          "bankId": "2010",
-          "currency": "CZK",
-          "iban": "CZ8120100000002901223235",
-          "bic": "FIOBCZPPXXX",
-          "openingBalance": 1674819.38,
-          "closingBalance": 1690219.38,
-          "dateStart": "2019-01-31+0100",
-          "dateEnd": "2019-01-31+0100",
-          "yearList": null,
-          "idList": null,
-          "idFrom": 18247244228,
-          "idTo": 18247668131,
-          "idLastDownload": null
-        },
-        "transactionList": {
-          "transaction":[]
-        }
-      }
-    }
-  )).mockResponseOnce(""); 
+  fetchMock.mockResponseOnce(td_jsonDay0).mockResponseOnce(""); 
     
   expect(await fs.recoverSync(new Date("2019-01-31"))).toBe(true);
  
@@ -156,39 +133,29 @@ test('My FioSyncer - first start',  async () => {
   await fds.setLastId(1234);
   expect(await fs.recoverSync(new Date("2019-01-31"))).toBe(false);
   expect(fetchMock.mock.calls.length).toBe(0);
-  
+
 });
 
 
-test.skip('My FioSyncer - sync day',  async () => {
+test('My FioSyncer - sync day',  async () => {
   fetchMock.resetMocks();
-  fetchMock.mockResponseOnce(
-    '{"accountStatement":{"info":{"accountId":"23231","bankId":"2010","currency":"CZK","iban":"CZ81201000000023231","bic":"FIOBCZPPXXX","openingBalance":1.23,"closingBalance":1.42,"dateStart":"2019-06-21+0200","dateEnd":"2019-06-21+0200","yearList":null,"idList":null,"idFrom":null,"idTo":null,"idLastDownload":213131313},"transactionList":{"transaction":[]}}}',
-  );
+  fetchMock.mockResponseOnce(td_jsonDay1);
+
 
   const muri = await mongod.getConnectionString();
   const mc = await createMongooseConnection(muri);
-  const fds = new FioDataStore(mc,"a1");
-  const frd = new FioReader("<test_token>");
+  const fds = new FioDataStore(mc, td_fioAccountId);
+  const frd = new FioReader("test_token");
   const fs = new FioSyncer(frd,fds);
 
-  let res = await fs.syncDate(new Date());
+  let res = await fs.syncDate(new Date("2019-07-08"));
   expect(res).toBe(true);
-  fetchMock.mockResponseOnce(
-    '{"accountStatement":{\
-      "info":{"accountId":"23231","bankId":"2010","currency":"CZK","iban":"CZ81201000000023231","bic":"FIOBCZPPXXX","openingBalance":184778.70,"closingBalance":213138.70,"dateStart":"2019-06-12+0200","dateEnd":"2019-06-12+0200","yearList":null,"idList":null,"idFrom":21349236442,"idTo":21350120640,"idLastDownload":null},\
-      "transactionList":{"transaction":[\
-        {"column22":{"value":21349236442,"name":"ID pohybu","id":22},"column0":{"value":"2019-06-12+0200","name":"Datum","id":0},"column1":{"value":1480.00,"name":"Objem","id":1},"column14":{"value":"CZK","name":"Měna","id":14},"column2":{"value":"1998087029","name":"Protiúčet","id":2},"column10":{"value":"Monika Valkova","name":"Název protiúčtu","id":10},"column3":{"value":"3030","name":"Kód banky","id":3},"column12":{"value":"Air Bank a.s.","name":"Název banky","id":12},"column4":null,"column5":{"value":"918006226","name":"VS","id":5},"column6":null,"column7":{"value":"Monika Valkova","name":"Uživatelská identifikace","id":7},"column16":{"value":"tanecni Dorián","name":"Zpráva pro příjemce","id":16},"column8":{"value":"Bezhotovostní příjem","name":"Typ","id":8},"column9":null,"column18":null,"column25":{"value":"Monika Valkova","name":"Komentář","id":25},"column26":null,"column17":{"value":24938334622,"name":"ID pokynu","id":17}},\
-        {"column22":{"value":21349236443,"name":"ID pohybu","id":22},"column0":{"value":"2019-06-12+0200","name":"Datum","id":0},"column1":{"value":1480.00,"name":"Objem","id":1},"column14":{"value":"CZK","name":"Měna","id":14},"column2":{"value":"1998087029","name":"Protiúčet","id":2},"column10":{"value":"Monika Valkova","name":"Název protiúčtu","id":10},"column3":{"value":"3030","name":"Kód banky","id":3},"column12":{"value":"Air Bank a.s.","name":"Název banky","id":12},"column4":null,"column5":{"value":"918006226","name":"VS","id":5},"column6":null,"column7":{"value":"Monika Valkova","name":"Uživatelská identifikace","id":7},"column16":{"value":"tanecni Dorián","name":"Zpráva pro příjemce","id":16},"column8":{"value":"Bezhotovostní příjem","name":"Typ","id":8},"column9":null,"column18":null,"column25":{"value":"Monika Valkova","name":"Komentář","id":25},"column26":null,"column17":{"value":24938334622,"name":"ID pokynu","id":17}}\
-      ]}}}',
-  );
-  res = await fs.syncDate(new Date());
-  expect(res).toBe(true);
+  expect(fetchMock.mock.calls[0][0]).toBe("https://www.fio.cz/ib_api/rest/periods/test_token/2019-07-08/2019-07-08/transactions.json");
   const atrs = await fds.fetchAllTransactions();
-  expect(atrs.length).toBe(2);
-  expect(atrs[0].fioAccountId).toBe("23231");
-  expect(atrs[0]).toMatchObject({fioAccountId:"23231"});
-  console.log(atrs);
+  expect(atrs.length).toBe(3);
+  expect(atrs[0].fioAccountId).toBe("2901223235");
+  expect(atrs[0]).toMatchObject({fioAccountId:"2901223235"});
+ // console.log(atrs);
 
   mc.close();
 
