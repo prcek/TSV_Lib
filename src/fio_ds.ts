@@ -2,14 +2,24 @@ import * as mongoose  from 'mongoose';
 import * as R from 'ramda';
 import { MongoError } from 'mongodb';
 
+export enum FioTransactionProcessingStatus {
+  NEW="NEW", IGNORE="IGNORE", ERROR="ERROR", SOLVED="SOLVED"
+}
+
+export enum FioTransactionType {
+  UNKNOWN="UNKNOWN", IN="IN", OUT="OUT", CARD_OUT="CARD_OUT"
+}
+
 export interface IFioBankTransaction {
     _id: any;
+    ps: FioTransactionProcessingStatus;
+
     fioId: number;
     fioAccountId: string;
-    date: string;
+    date: Date;
     amount: number;
     currency: string;
-    type: string;
+    type: FioTransactionType;
     fAccountId: string | null;
     fBankId: string | null;
     fAccountName: string | null;
@@ -21,6 +31,7 @@ export interface IFioBankTransaction {
     userRef: string | null;
     userMsg: string | null;
     comment: string | null;
+    rawData: string;
 }
 
 export interface IFioBankSyncInfo {
@@ -39,11 +50,14 @@ export class FioDataStore {
   private mongooseConnection: mongoose.Connection;
   private fioBankTransactionModel: mongoose.Model<IFioBankTransactionModel>;
   private fioBankTranscationSchema = new mongoose.Schema({
+    ps: { type: String, enum: Object.keys(FioTransactionProcessingStatus).filter(k => typeof FioTransactionProcessingStatus[k as any] === "number")},
+    psRef: String,
     fioId: Number,
     fioAccountId: String,
+    date: Date,
     currency: String,
     amount: Number,
-    type: String,
+    type: { type: String, enum: Object.keys(FioTransactionType).filter(k => typeof FioTransactionType[k as any] === "number")},
     fAccountId: String,
     fBankId: String,
     fAccountName: String,
@@ -54,13 +68,14 @@ export class FioDataStore {
     userRef: String,
     userMsg: String,
     comment: String,
-  }).index({fioId: 1, fioAccountId: 1}, { unique: true });
+    rawData: String,
+  },{timestamps:true}).index({fioId: 1, fioAccountId: 1}, { unique: true });
 
   private fioBankSyncInfoModel: mongoose.Model<IFioBankSyncInfoModel>;
   private fioBankSyncInfoSchema = new mongoose.Schema({
     fioAccountId: String,
     idLastDownload: Number
-  }).index({fioAccountId: 1}, { unique: true });
+  },{timestamps:true}).index({fioAccountId: 1}, { unique: true });
 
   private fioAccountId: string;
 

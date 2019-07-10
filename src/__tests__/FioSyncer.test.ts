@@ -2,8 +2,8 @@ import { FetchMock } from 'jest-fetch-mock';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import * as mongoose from 'mongoose';
 import { FioDataStore, FioReader, FioSyncer } from '../index';
-import { IFioBankTransaction } from '../fio_ds';
-import { td_jsonDay1, td_fioAccountId, td_jsonDay0, td_jsonDayEmpty } from '../__test_data__/data';
+import { IFioBankTransaction, FioTransactionProcessingStatus, FioTransactionType } from '../fio_ds';
+import { td_jsonDay1, td_fioAccountId, td_jsonDay0, td_jsonDayEmpty, td_jsonTrTypes } from '../__test_data__/data';
 
 const fetchMock = fetch as FetchMock;
 
@@ -46,13 +46,14 @@ test('My FioSyncer - first start',  async () => {
 
   //check recover
   const tt = await fds.storeTransactionRecord( {
+    ps: FioTransactionProcessingStatus.NEW,
     fioId: 1,
-    // tslint:disable-next-line:object-literal-sort-keys
     fioAccountId: "a1",
-    date: "2019-10-10",
+    date: new Date("2019-10-10"),
     amount: 100,
     currency: "CZK",
-    type: "nic",
+    type: FioTransactionType.IN,
+    rawData: ""
   } as IFioBankTransaction);
   expect(await fs.isFirstSync()).toBe(false);
   await fds.removeTransactionRecord(tt._id)
@@ -91,10 +92,10 @@ test('My FioSyncer - first start',  async () => {
     fioId: 1234,
     // tslint:disable-next-line:object-literal-sort-keys
     fioAccountId: "a1",
-    date: "2019-10-10",
+    date: new Date("2019-10-10"),
     amount: 100,
     currency: "CZK",
-    type: "nic",
+    type: FioTransactionType.IN,
   } as IFioBankTransaction);
   await fds.setLastId(1234);
   expect(await fs.recoverSync(new Date("2019-01-31"))).toBe(true);
@@ -126,10 +127,10 @@ test('My FioSyncer - first start',  async () => {
     fioId: 1235,
     // tslint:disable-next-line:object-literal-sort-keys
     fioAccountId: "a1",
-    date: "2019-10-10",
+    date: new Date("2019-10-10"),
     amount: 100,
     currency: "CZK",
-    type: "nic",
+    type: FioTransactionType.IN,
   } as IFioBankTransaction);
   await fds.setLastId(1234);
   expect(await fs.recoverSync(new Date("2019-01-31"))).toBe(false);
@@ -198,4 +199,22 @@ test('My FioSyncer - start (recovery A), sync last - one fetch, 2 empty',  async
   mc.close();
 
 
+});
+
+
+test('My FioSyncer - transaction types',  async () => {
+  fetchMock.resetMocks();
+  fetchMock.mockResponseOnce(td_jsonTrTypes);
+  const muri = await mongod.getConnectionString();
+  const mc = await createMongooseConnection(muri);
+  const fds = new FioDataStore(mc, td_fioAccountId);
+  const frd = new FioReader("test_token");
+  const fs = new FioSyncer(frd,fds);
+
+  expect(await fs.syncLast()).toBe(true);
+  const atrs = await fds.fetchAllTransactions();  //last as first
+  expect(atrs.length).toBe(1);
+  expect(atrs[0].type).toBe(FioTransactionType.IN);
+
+  mc.close();
 });

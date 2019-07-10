@@ -1,6 +1,7 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import * as mongoose from 'mongoose';
 import { FioDataStore, FioReader, FioSyncer } from './index';
+import { FioTransactionProcessingStatus } from './fio_ds';
 // tslint:disable-next-line:no-var-requires
 require('dotenv').config();
 
@@ -71,3 +72,7 @@ connectTestMongoDB().then(async mc => {
   console.log("syncLast", await fs.syncLast());
   mc.close();
 });
+
+
+//const keys = Object.keys(FioTransactionProcessingStatus).filter(k => typeof FioTransactionProcessingStatus[k as any] === "number");
+//console.log(keys);

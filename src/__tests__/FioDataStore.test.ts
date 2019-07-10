@@ -1,6 +1,6 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import * as mongoose from 'mongoose';
-import { FioDataStore, IFioBankTransaction } from '../fio_ds';
+import { FioDataStore, IFioBankTransaction, FioTransactionProcessingStatus, FioTransactionType } from '../fio_ds';
 
 
 const mongod = new MongoMemoryServer({debug:false, autoStart:false});
@@ -58,7 +58,7 @@ test('My FioDataStore - list,store,list',  async () => {
   const r = {
     fioId: 1,
     fioAccountId: "a1",
-    date: "2019-10-10",
+    date: new Date("2019-10-10"),
     amount: 100,
     currency: "CZK",
     type: "nic",
@@ -71,20 +71,20 @@ test('My FioDataStore - list,store,list',  async () => {
   const ltr = await fds.storeTransactionRecord( {
     fioId: 3,
     fioAccountId: "a1",
-    date: "2019-10-12",
+    date: new Date("2019-10-10"),
     amount: 100,
     currency: "CZK",
-    type: "nic",
+    type: FioTransactionType.IN,
   } as IFioBankTransaction);
 
 
   await fds.storeTransactionRecord( {
     fioId: 2,
     fioAccountId: "a1",
-    date: "2019-10-11",
+    date: new Date("2019-10-10"),
     amount: 100,
     currency: "CZK",
-    type: "nic",
+    type: FioTransactionType.IN,
   } as IFioBankTransaction);
 
 
@@ -128,10 +128,10 @@ test('FioDataStore - duplicate write', async () => {
   const ltr = await fds.storeTransactionRecord( {
     fioId: 3,
     fioAccountId: "a1",
-    date: "2019-10-12",
+    date: new Date("2019-10-10"),
     amount: 100,
     currency: "CZK",
-    type: "nic",
+    type: FioTransactionType.IN,
   } as IFioBankTransaction);
 
 
@@ -139,12 +139,14 @@ test('FioDataStore - duplicate write', async () => {
   expect(atr2.length).toBe(1);
 
   const ltr_dup = await fds.storeTransactionRecord( {
+    ps: FioTransactionProcessingStatus.NEW,
     fioId: 3,
     fioAccountId: "a1",
-    date: "2019-10-12",
+    date: new Date("2019-10-10"),
     amount: 100,
     currency: "CZK",
-    type: "nic",
+    type: FioTransactionType.IN,
+    rawData: "",
   } as IFioBankTransaction);
   expect(ltr_dup).toMatchObject({fioId:3});
 

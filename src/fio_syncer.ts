@@ -1,4 +1,4 @@
-import { FioDataStore } from "./fio_ds";
+import { FioDataStore, FioTransactionProcessingStatus, FioTransactionType } from "./fio_ds";
 import { FioReader, IFioInfo, IFioTransaction } from "./fio_reader";
 
 export class FioSyncer {
@@ -60,7 +60,7 @@ export class FioSyncer {
     public async syncDate(date: Date): Promise<boolean> {
         const trs = await this.reader.getPeriods(date,date);
         if (trs.accountStatement.transactionList.transaction.length) {
-            const dxo = await Promise.all(trs.accountStatement.transactionList.transaction.map( t => this.storeTr(trs.accountStatement.info, t)));
+            const dxo = await Promise.all(trs.accountStatement.transactionList.transaction.map( t => this.storeTr(trs.accountStatement.info, t, FioTransactionProcessingStatus.NEW)));
             return true;
         }
         return true;
@@ -69,7 +69,7 @@ export class FioSyncer {
     public async syncLast(): Promise<boolean> {
         const trs = await this.reader.getLast();
         if (trs.accountStatement.transactionList.transaction.length) {
-            await Promise.all(trs.accountStatement.transactionList.transaction.map( t => this.storeTr(trs.accountStatement.info, t)));
+            await Promise.all(trs.accountStatement.transactionList.transaction.map( t => this.storeTr(trs.accountStatement.info, t, FioTransactionProcessingStatus.NEW)));
 
             //store lastID:
             if (trs.accountStatement.info.idTo !== null) {
@@ -91,16 +91,37 @@ export class FioSyncer {
     }
 
 
-    private async storeTr(ainfo:IFioInfo, t: IFioTransaction) {
+    private async storeTr(ainfo:IFioInfo, t: IFioTransaction, ps: FioTransactionProcessingStatus ) {
+
+        let d = new Date(0);
+        try {
+           const n = Date.parse(t.date.slice(0,10));
+           if (!isNaN(n)) {
+               d = new Date(n);
+           }
+        } catch (e) {
+          
+        }
+
+        let tt = FioTransactionType.UNKNOWN;
+        switch(t.type) {
+            case 'Bezhotovostní příjem': tt = FioTransactionType.IN; break;
+            case 'Příjem převodem uvnitř banky': tt = FioTransactionType.IN; break;
+            case 'Bezhotovostní platba': tt = FioTransactionType.OUT; break;
+            case 'Platba převodem uvnitř banky': tt = FioTransactionType.OUT; break;
+            case 'Platba kartou': tt = FioTransactionType.CARD_OUT; break;
+        }
+      
         return this.store.storeTransactionRecord({
             _id: null,
+            ps: ps,
             fioId: t.id,
             // tslint:disable-next-line:object-literal-sort-keys
             fioAccountId: ainfo.accountId,
-            date: t.date,
+            date: d, //t.date,
             amount: t.amount,
             currency: t.currency,
-            type: t.type,
+            type: tt,
             fAccountId: t.fAccountId,
             fBankId: t.fBankId,
             fAccountName: t.fAccountName,
@@ -110,7 +131,8 @@ export class FioSyncer {
             ss: t.ss,
             userRef: t.userRef,
             userMsg: t.userMsg,
-            comment: t.comment
+            comment: t.comment,
+            rawData: t.rawData,
         });
     }
 

@@ -34,6 +34,7 @@ export interface IFioTransaction {
   userRef: string | null;
   userMsg: string | null;
   comment: string | null;
+  rawData: string;
 }
 
 export interface IFioRawTransaction {
@@ -182,6 +183,8 @@ export class FioReader {
       userRef: rt.column7 ? rt.column7.value : null,
       userMsg: rt.column16 ? rt.column16.value : null,
       comment: rt.column25 ? rt.column25.value : null,
+
+      rawData: JSON.stringify(rt)
     };
   }
   private raw2fr(js: any): IFioRecord {
