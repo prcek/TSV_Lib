@@ -78,21 +78,21 @@ export interface IFioInfo {
   idLastDownload: number | null;
 }
 
-
-
 export class FioReader {
   private apiUrl = 'https://www.fio.cz/ib_api/rest/';
   private apiToken: string;
   private thdisabled = false;
-  private thfetchInternal =  pThrottle( (url : string) => {
-    return fetch(url);
-  }, 1, 30000);
-  
-  
+  private thfetchInternal = pThrottle(
+    (url: string) => {
+      return fetch(url);
+    },
+    1,
+    30000,
+  );
+
   constructor(token: string) {
     this.apiToken = token;
   }
-
 
   public test_disableThrottling(): void {
     this.thdisabled = true;
@@ -105,22 +105,20 @@ export class FioReader {
   }
 
   public async getDayLastId(checkDate: Date): Promise<number | null> {
+    const fromD = new Date(checkDate.getTime() - 3600000 * 24 * 7); // 7 days
 
-    const fromD = new Date(checkDate.getTime() - (3600000*24*7)); // 7 days
-
-    const fior = await this.getPeriods(fromD,checkDate);
+    const fior = await this.getPeriods(fromD, checkDate);
     if (fior) {
       return fior.accountStatement.info.idTo;
-    } 
+    }
     return null;
   }
 
   public async setLastId(lastId: number): Promise<boolean> {
     // https://www.fio.cz/ib_api/rest/set-last-id/{token}/{id}/
-    const r = await fetch(this.apiUrl + 'set-last-id/' + this.apiToken + '/'+lastId +'/');
+    const r = await fetch(this.apiUrl + 'set-last-id/' + this.apiToken + '/' + lastId + '/');
     return r.status === 200;
   }
-
 
   public async getPeriods(fromDate: Date, toDate: Date): Promise<IFioRecord> {
     const r = await this.thfetch(
@@ -137,7 +135,7 @@ export class FioReader {
     return this.raw2fr(js);
   }
   private async thfetch(url: string): Promise<Response> {
-    return this.thdisabled ? fetch(url): this.thfetchInternal(url);
+    return this.thdisabled ? fetch(url) : this.thfetchInternal(url);
   }
 
   private async _getRaw(): Promise<string> {
@@ -184,7 +182,7 @@ export class FioReader {
       userMsg: rt.column16 ? rt.column16.value : null,
       comment: rt.column25 ? rt.column25.value : null,
 
-      rawData: JSON.stringify(rt)
+      rawData: JSON.stringify(rt),
     };
   }
   private raw2fr(js: any): IFioRecord {

@@ -4,7 +4,7 @@ import { FioDataStore, FioReader, FioSyncer } from './index';
 // tslint:disable-next-line:no-var-requires
 require('dotenv').config();
 
-const mongod = new MongoMemoryServer({debug:false, autoStart:false});
+const mongod = new MongoMemoryServer({ debug: false, autoStart: false });
 
 async function startLocalMongoDB(): Promise<mongoose.Connection> {
   const mongoUri: string = await mongod.getConnectionString();
@@ -24,9 +24,8 @@ async function startLocalMongoDB(): Promise<mongoose.Connection> {
   return mongooseConnection;
 }
 
-
 async function connectTestMongoDB(): Promise<mongoose.Connection> {
-  const mongoUri: string = process.env.MONGO_URI || 'missing'
+  const mongoUri: string = process.env.MONGO_URI || 'missing';
   const mongooseOpts = {
     // options for mongoose 4.11.3 and above
     autoReconnect: true,
@@ -60,18 +59,17 @@ startLocalMongoDB().then(async mc => {
 */
 
 connectTestMongoDB().then(async mc => {
-  const fds = new FioDataStore(mc,process.env.FIO_ACCOUNT_ID || 'missing');
+  const fds = new FioDataStore(mc, process.env.FIO_ACCOUNT_ID || 'missing');
   const info = await fds.getMongoVersion();
   console.log(info);
 
   const frd = new FioReader(process.env.FIO_TOKEN || 'missing');
-  const fs = new FioSyncer(frd,fds);
-  console.log("isFirstSync", await fs.isFirstSync());
-  console.log("recovery", await fs.recoverSync(new Date("2019-07-01")));
-  console.log("syncLast", await fs.syncLast());
+  const fs = new FioSyncer(frd, fds);
+  console.log('isFirstSync', await fs.isFirstSync());
+  console.log('recovery', await fs.recoverSync(new Date('2019-07-01')));
+  console.log('syncLast', await fs.syncLast());
   mc.close();
 });
-
 
 // const keys = Object.keys(FioTransactionProcessingStatus).filter(k => typeof FioTransactionProcessingStatus[k as any] === "number");
 // console.log(keys);
