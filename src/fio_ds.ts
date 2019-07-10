@@ -41,6 +41,18 @@ export class FioDataStore {
     fioId: Number,
     fioAccountId: String,
     currency: String,
+    amount: Number,
+    type: String,
+    fAccountId: String,
+    fBankId: String,
+    fAccountName: String,
+    fBankName:String,
+    ks: String,
+    vs: String,
+    ss: String,
+    userRef: String,
+    userMsg: String,
+    comment: String,
   }).index({fioId: 1, fioAccountId: 1}, { unique: true });
 
   private fioBankSyncInfoModel: mongoose.Model<IFioBankSyncInfoModel>;
