@@ -1,5 +1,33 @@
-
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import * as mongoose from 'mongoose';
 import { CoursePaymentsStore, ECoursePaymentType, ICoursePayment, IStudentInfo } from '../course_payments';
+
+const mongod = new MongoMemoryServer({ debug: false, autoStart: false });
+
+async function createMongooseConnection(mongoUri: string): Promise<mongoose.Connection> {
+  const mongooseOpts = {
+    // options for mongoose 4.11.3 and above
+    autoReconnect: true,
+    reconnectTries: Number.MAX_VALUE,
+    // tslint:disable-next-line:object-literal-sort-keys
+    reconnectInterval: 1000,
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useFindAndModify: false,
+  };
+
+  const mongooseConnection = await mongoose.createConnection(mongoUri, mongooseOpts);
+  return mongooseConnection;
+}
+
+beforeEach(() => {
+    return mongod.start();
+});
+  
+afterEach(() => {
+    return mongod.stop();
+});
+  
 
 const lookup = jest.fn( (vs: string): Promise<IStudentInfo | null> => {
   let si: IStudentInfo | null = null;
@@ -22,8 +50,9 @@ test('CoursePayments - lookup Exact', async () => {
   //   course_cost: 1,
   //   paid: 1
   // });
-  
-  const cps = new CoursePaymentsStore({
+  const muri = await mongod.getConnectionString();
+  const mc = await createMongooseConnection(muri);
+  const cps = new CoursePaymentsStore(mc, {
       lookupStudentInfo: lookup,
       updateStudentPaymentInfo: update,
       firmAccounts: {"f1":["ac1"], "f2":["ac2","ac3"]}
@@ -38,6 +67,7 @@ test('CoursePayments - lookup Exact', async () => {
   expect(await cps.checkNewBankPaymentExact("ac3","4",1200)).toBe(true);
   expect(await cps.checkNewBankPaymentExact("ac4","4",1200)).toBe(false);
 
+  mc.close();
 });
 
 
@@ -45,14 +75,15 @@ test('CoursePayments - lookup Exact', async () => {
 test('CoursePayments - insert payments', async () => {
 
     update.mockClear();
-    const cps = new CoursePaymentsStore({
+    const muri = await mongod.getConnectionString();
+    const mc = await createMongooseConnection(muri);
+    const cps = new CoursePaymentsStore(mc,{
         lookupStudentInfo: lookup,
         updateStudentPaymentInfo: update,
         firmAccounts: {"f1":["ac1"], "f2":["ac2","ac3"]}
     });
 
     const np  = {
-        _id: 1,
        type: ECoursePaymentType.AUTO,
        date: new Date(),
        amount: 1000,
@@ -62,9 +93,11 @@ test('CoursePayments - insert payments', async () => {
 
     expect(await cps.storeNewPayment(np)).toMatchObject({_id: expect.anything()});
     expect(update).toHaveBeenCalledTimes(1);
-   // expect(update).toHaveBeenCalledWith("st1",1000);
+    expect(update).toHaveBeenCalledWith("st1",1000);
     expect(await cps.storeNewPayment(np)).toMatchObject({_id: expect.anything()});
     expect(update).toHaveBeenCalledTimes(2);
-   // expect(update).toHaveBeenCalledWith("st1",2000);
+    expect(update).toHaveBeenCalledWith("st1",2000);
+
+    mc.close();
 });  
   
