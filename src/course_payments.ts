@@ -49,7 +49,7 @@ export class CoursePaymentsStore {
       type: {
         required: true,
         type: String,
-        enum: Object.keys(ECoursePaymentType).filter(k => typeof ECoursePaymentType[k as any] === 'number'),
+        enum: Object.keys(ECoursePaymentType),
       },
       date: {
         type: Date,
@@ -88,6 +88,7 @@ export class CoursePaymentsStore {
     this.lookupStudentInfo = opts.lookupStudentInfo;
     this.updateStudentPaymentInfo = opts.updateStudentPaymentInfo;
     this.firmAccounts = opts.firmAccounts;
+
   }
 
   public async checkNewBankPaymentExact(accountId: string, vs: string, amount: number): Promise<boolean> {

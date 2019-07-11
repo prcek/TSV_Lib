@@ -56,9 +56,8 @@ export class FioDataStore {
     {
       ps: {
         type: String,
-        enum: Object.keys(FioTransactionProcessingStatus).filter(
-          k => typeof FioTransactionProcessingStatus[k as any] === 'number',
-        ),
+        required: true,
+        enum: Object.keys(FioTransactionProcessingStatus),
       },
       psRef: String,
       fioId: Number,
@@ -68,7 +67,8 @@ export class FioDataStore {
       amount: Number,
       type: {
         type: String,
-        enum: Object.keys(FioTransactionType).filter(k => typeof FioTransactionType[k as any] === 'number'),
+        required: true,
+        enum: Object.keys(FioTransactionType),
       },
       fAccountId: String,
       fBankId: String,
@@ -109,6 +109,7 @@ export class FioDataStore {
       this.fioBankSyncInfoSchema,
       'fiobanksyncinfo',
     );
+
   }
   public async getMongoVersion(): Promise<string> {
     const info = await this.mongooseConnection.db.admin().buildInfo();
@@ -142,6 +143,21 @@ export class FioDataStore {
   }
   public async fetchAllTransactions(): Promise<IFioBankTransaction[]> {
     return this.fioBankTransactionModel.find({ fioAccountId: this.fioAccountId }).sort({ fioId: -1 });
+  }
+  public async fetchOneNewTransaction(): Promise<IFioBankTransaction | null> {
+    return this.fioBankTransactionModel.findOne({ fioAccountId: this.fioAccountId, ps: FioTransactionProcessingStatus.NEW }).sort({ fioId: -1 });
+  }
+  public async changeTransactionStatus(id: string, newStatus: FioTransactionProcessingStatus): Promise<boolean> {
+    const nd = await this.fioBankTransactionModel.findByIdAndUpdate(id,
+      { ps: newStatus },
+      {
+        new: true,
+      },
+    );
+    if (nd) {
+      return true;
+    } 
+    return false;
   }
 
   public async removeTransactionRecord(id: string): Promise<boolean> {

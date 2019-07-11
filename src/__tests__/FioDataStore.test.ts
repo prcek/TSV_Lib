@@ -30,7 +30,7 @@ afterEach(() => {
   return mongod.stop();
 });
 
-test('My FioDataStore', async () => {
+test.skip('My FioDataStore', async () => {
   const muri = await mongod.getConnectionString();
   const mc = await createMongooseConnection(muri);
   const fds = new FioDataStore(mc, '123');
@@ -49,12 +49,13 @@ test('My FioDataStore - list,store,list', async () => {
   expect(await fds.getLastTransaction()).toBe(null);
 
   const r = {
+    ps: "NEW",
     fioId: 1,
     fioAccountId: 'a1',
     date: new Date('2019-10-10'),
     amount: 100,
     currency: 'CZK',
-    type: 'nic',
+    type: 'IN',
   };
   const newtr = await fds.storeTransactionRecord(r as IFioBankTransaction);
   const atr2 = await fds.fetchAllTransactions();
@@ -62,6 +63,7 @@ test('My FioDataStore - list,store,list', async () => {
   expect(atr2[0]).toMatchObject({ currency: 'CZK' });
 
   const ltr = await fds.storeTransactionRecord({
+    ps: "NEW",
     fioId: 3,
     fioAccountId: 'a1',
     date: new Date('2019-10-10'),
@@ -71,6 +73,7 @@ test('My FioDataStore - list,store,list', async () => {
   } as IFioBankTransaction);
 
   await fds.storeTransactionRecord({
+    ps: "NEW",
     fioId: 2,
     fioAccountId: 'a1',
     date: new Date('2019-10-10'),
@@ -100,6 +103,7 @@ test('My FioDataStore - start empty, save lastid, getlastid', async () => {
   expect(await fds.resetLastId()).toBe(true);
   expect(await fds.getLastId()).toBe(null);
   expect(await fds2.getLastId()).toBe(3);
+  mc.close();
 });
 
 test('FioDataStore - duplicate write', async () => {
@@ -110,6 +114,7 @@ test('FioDataStore - duplicate write', async () => {
   expect(atr.length).toBe(0);
 
   const ltr = await fds.storeTransactionRecord({
+    ps: "NEW",
     fioId: 3,
     fioAccountId: 'a1',
     date: new Date('2019-10-10'),
@@ -139,4 +144,37 @@ test('FioDataStore - duplicate write', async () => {
   expect(atr3.length).toBe(1);
 
   mc.close();
+});
+
+
+
+test("FioDataStore -  fetchOneNew, updateStatus", async () => {
+
+  const muri = await mongod.getConnectionString();
+  const mc = await createMongooseConnection(muri);
+  const fds = new FioDataStore(mc, 'a1');
+
+  expect(await fds.fetchOneNewTransaction()).toBeNull();
+
+  const ltr = await fds.storeTransactionRecord({
+    ps: "NEW",
+    fioId: 3,
+    fioAccountId: 'a1',
+    date: new Date('2019-10-10'),
+    amount: 100,
+    currency: 'CZK',
+    type: FioTransactionType.IN,
+  } as IFioBankTransaction);
+
+  const nt = await fds.fetchOneNewTransaction();
+  expect(nt).not.toBeNull();
+  expect(nt).toMatchObject({ps:"NEW"});
+  expect(await fds.changeTransactionStatus((nt as IFioBankTransaction )._id, FioTransactionProcessingStatus.SOLVED )).toBe(true);
+  
+ 
+  expect(await fds.fetchOneNewTransaction()).toBeNull();
+
+ 
+  mc.close();
+  
 });
