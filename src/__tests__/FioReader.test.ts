@@ -2,7 +2,9 @@ import { FetchMock } from 'jest-fetch-mock';
 const fetchMock = fetch as FetchMock;
 jest.useFakeTimers();
 
+import { tdJsonDayEmpty } from '../__test_data__/data';
 import { FioReader } from '../fio_reader';
+
 test('My FioReader - GetLast', async () => {
   fetchMock.resetMocks();
   fetchMock.mockResponseOnce(
@@ -14,7 +16,7 @@ test('My FioReader - GetLast', async () => {
   jest.runAllTimers();
   expect(fetch).toHaveBeenCalledTimes(1);
   const frr = await frrP;
-  expect(frr.accountStatement.info.accountId).toBe('23231');
+  expect(frr && frr.accountStatement.info.accountId).toBe('23231');
   //  console.log(frr.accountStatement);
   expect(fetchMock.mock.calls.length).toBe(1);
 });
@@ -29,8 +31,9 @@ test('My FioReader - GetPeriods', async () => {
   jest.runAllTimers();
   expect(fetch).toHaveBeenCalledTimes(1);
   const frr = await frrP;
-  expect(frr.accountStatement.info.accountId).toBe('23231');
-  expect(frr.accountStatement.transactionList.transaction[0].amount).toBe(1480);
+  expect(frr).not.toBeNull();
+  expect(frr && frr.accountStatement.info.accountId).toBe('23231');
+  expect(frr && frr.accountStatement.transactionList.transaction[0].amount).toBe(1480);
   // console.log(frr.accountStatement);
   expect(fetchMock.mock.calls.length).toBe(1);
   // console.log(fetchMock.mock.calls[0]);
@@ -164,7 +167,20 @@ test('My FioReader - GetPeriod Throttle', async () => {
   const frr2 = await frr2P;
   const frr3 = await frr3P;
   expect(fetch).toHaveBeenCalledTimes(3);
-  expect(frr1.accountStatement.info.accountId).toBe('2901223235');
+  expect(frr1 && frr1.accountStatement.info.accountId).toBe('2901223235');
   //  console.log(frr.accountStatement);
   expect(fetchMock.mock.calls.length).toBe(3);
+});
+
+
+test('My FioReader - http status 409', async () => {
+  fetchMock.resetMocks();
+  fetchMock.mockResponseOnce(tdJsonDayEmpty);
+  const fr = new FioReader('test_token');
+  fr.test_disableThrottling();
+  expect( await fr.getLast()).not.toBeNull();
+  fetchMock.mockResponseOnce("",{status:409});
+  expect( await fr.getLast()).toBeNull();
+ 
+
 });

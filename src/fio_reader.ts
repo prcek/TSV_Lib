@@ -98,10 +98,16 @@ export class FioReader {
     this.thdisabled = true;
   }
 
-  public async getLast(): Promise<IFioRecord> {
+  public async getLast(): Promise<IFioRecord | null> {
     const r = await this.thfetch(this.apiUrl + 'last/' + this.apiToken + '/transactions.json');
-    const js = await r.json();
-    return this.raw2fr(js);
+    if (r.status === 200) {
+      const js = await r.json();
+      return this.raw2fr(js);
+    }
+    if (r.status === 409) {
+      return null;
+    }
+    throw Error("FioReader.getLast http status error "+r.status);
   }
 
   public async getDayLastId(checkDate: Date): Promise<number | null> {
@@ -120,7 +126,7 @@ export class FioReader {
     return r.status === 200;
   }
 
-  public async getPeriods(fromDate: Date, toDate: Date): Promise<IFioRecord> {
+  public async getPeriods(fromDate: Date, toDate: Date): Promise<IFioRecord | null> {
     const r = await this.thfetch(
       this.apiUrl +
         'periods/' +
@@ -131,8 +137,16 @@ export class FioReader {
         this.date2fioParam(toDate) +
         '/transactions.json',
     );
-    const js = await r.json();
-    return this.raw2fr(js);
+
+    if (r.status === 200) {
+      const js = await r.json();
+      return this.raw2fr(js);
+    }
+
+    if (r.status === 409) {
+      return null;
+    }
+    throw Error("FioReader.getPeriods http status error"+r.status);
   }
   private async thfetch(url: string): Promise<Response> {
     return this.thdisabled ? fetch(url) : this.thfetchInternal(url);
