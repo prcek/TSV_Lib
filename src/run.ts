@@ -58,6 +58,8 @@ startLocalMongoDB().then(async mc => {
 });
 */
 
+
+/*
 connectTestMongoDB().then(async mc => {
   const fds = new FioDataStore(mc, process.env.FIO_ACCOUNT_ID || 'missing');
   const info = await fds.getMongoVersion();
@@ -70,6 +72,7 @@ connectTestMongoDB().then(async mc => {
   console.log('syncLast', await fs.syncLast());
   mc.close();
 });
+*/
 
 // const keys = Object.keys(FioTransactionProcessingStatus).filter(k => typeof FioTransactionProcessingStatus[k as any] === "number");
 // console.log(keys);
