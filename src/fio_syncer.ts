@@ -130,6 +130,9 @@ export class FioSyncer {
       case 'Platba kartou':
         tt = FioTransactionType.CARD_OUT;
         break;
+      case 'Vklad pokladnou':
+        tt = FioTransactionType.IN;
+        break;
     }
 
     return this.store.storeTransactionRecord({
