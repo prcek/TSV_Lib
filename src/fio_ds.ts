@@ -148,12 +148,16 @@ export class FioDataStore {
       .findOne({ fioAccountId: this.fioAccountId, ps: FioTransactionProcessingStatus.NEW })
       .sort({ fioId: -1 });
   }
-  public async changeTransactionStatus(id: string, newStatus: FioTransactionProcessingStatus, newRef: string|null): Promise<boolean> {
+  public async changeTransactionStatus(
+    id: string,
+    newStatus: FioTransactionProcessingStatus,
+    newRef: string | null,
+  ): Promise<boolean> {
     const nd = await this.fioBankTransactionModel.findByIdAndUpdate(
       id,
-      { 
+      {
         ps: newStatus,
-        psRef: newRef
+        psRef: newRef,
       },
       {
         new: true,
