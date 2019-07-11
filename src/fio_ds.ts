@@ -109,7 +109,6 @@ export class FioDataStore {
       this.fioBankSyncInfoSchema,
       'fiobanksyncinfo',
     );
-
   }
   public async getMongoVersion(): Promise<string> {
     const info = await this.mongooseConnection.db.admin().buildInfo();
@@ -145,10 +144,13 @@ export class FioDataStore {
     return this.fioBankTransactionModel.find({ fioAccountId: this.fioAccountId }).sort({ fioId: -1 });
   }
   public async fetchOneNewTransaction(): Promise<IFioBankTransaction | null> {
-    return this.fioBankTransactionModel.findOne({ fioAccountId: this.fioAccountId, ps: FioTransactionProcessingStatus.NEW }).sort({ fioId: -1 });
+    return this.fioBankTransactionModel
+      .findOne({ fioAccountId: this.fioAccountId, ps: FioTransactionProcessingStatus.NEW })
+      .sort({ fioId: -1 });
   }
   public async changeTransactionStatus(id: string, newStatus: FioTransactionProcessingStatus): Promise<boolean> {
-    const nd = await this.fioBankTransactionModel.findByIdAndUpdate(id,
+    const nd = await this.fioBankTransactionModel.findByIdAndUpdate(
+      id,
       { ps: newStatus },
       {
         new: true,
@@ -156,7 +158,7 @@ export class FioDataStore {
     );
     if (nd) {
       return true;
-    } 
+    }
     return false;
   }
 

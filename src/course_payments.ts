@@ -88,7 +88,6 @@ export class CoursePaymentsStore {
     this.lookupStudentInfo = opts.lookupStudentInfo;
     this.updateStudentPaymentInfo = opts.updateStudentPaymentInfo;
     this.firmAccounts = opts.firmAccounts;
-
   }
 
   public async checkNewBankPaymentExact(accountId: string, vs: string, amount: number): Promise<boolean> {

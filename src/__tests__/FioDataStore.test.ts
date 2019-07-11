@@ -49,7 +49,7 @@ test('My FioDataStore - list,store,list', async () => {
   expect(await fds.getLastTransaction()).toBe(null);
 
   const r = {
-    ps: "NEW",
+    ps: 'NEW',
     fioId: 1,
     fioAccountId: 'a1',
     date: new Date('2019-10-10'),
@@ -63,7 +63,7 @@ test('My FioDataStore - list,store,list', async () => {
   expect(atr2[0]).toMatchObject({ currency: 'CZK' });
 
   const ltr = await fds.storeTransactionRecord({
-    ps: "NEW",
+    ps: 'NEW',
     fioId: 3,
     fioAccountId: 'a1',
     date: new Date('2019-10-10'),
@@ -73,7 +73,7 @@ test('My FioDataStore - list,store,list', async () => {
   } as IFioBankTransaction);
 
   await fds.storeTransactionRecord({
-    ps: "NEW",
+    ps: 'NEW',
     fioId: 2,
     fioAccountId: 'a1',
     date: new Date('2019-10-10'),
@@ -114,7 +114,7 @@ test('FioDataStore - duplicate write', async () => {
   expect(atr.length).toBe(0);
 
   const ltr = await fds.storeTransactionRecord({
-    ps: "NEW",
+    ps: 'NEW',
     fioId: 3,
     fioAccountId: 'a1',
     date: new Date('2019-10-10'),
@@ -146,10 +146,7 @@ test('FioDataStore - duplicate write', async () => {
   mc.close();
 });
 
-
-
-test("FioDataStore -  fetchOneNew, updateStatus", async () => {
-
+test('FioDataStore -  fetchOneNew, updateStatus', async () => {
   const muri = await mongod.getConnectionString();
   const mc = await createMongooseConnection(muri);
   const fds = new FioDataStore(mc, 'a1');
@@ -157,7 +154,7 @@ test("FioDataStore -  fetchOneNew, updateStatus", async () => {
   expect(await fds.fetchOneNewTransaction()).toBeNull();
 
   const ltr = await fds.storeTransactionRecord({
-    ps: "NEW",
+    ps: 'NEW',
     fioId: 3,
     fioAccountId: 'a1',
     date: new Date('2019-10-10'),
@@ -168,13 +165,12 @@ test("FioDataStore -  fetchOneNew, updateStatus", async () => {
 
   const nt = await fds.fetchOneNewTransaction();
   expect(nt).not.toBeNull();
-  expect(nt).toMatchObject({ps:"NEW"});
-  expect(await fds.changeTransactionStatus((nt as IFioBankTransaction )._id, FioTransactionProcessingStatus.SOLVED )).toBe(true);
-  
- 
+  expect(nt).toMatchObject({ ps: 'NEW' });
+  expect(
+    await fds.changeTransactionStatus((nt as IFioBankTransaction)._id, FioTransactionProcessingStatus.SOLVED),
+  ).toBe(true);
+
   expect(await fds.fetchOneNewTransaction()).toBeNull();
 
- 
   mc.close();
-  
 });

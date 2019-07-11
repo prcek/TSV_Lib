@@ -89,7 +89,7 @@ test('My FioSyncer - first start', async () => {
   fetchMock.mockResponseOnce('');
 
   const tt2 = await fds.storeTransactionRecord({
-    ps: "NEW",
+    ps: 'NEW',
     fioId: 1234,
     // tslint:disable-next-line:object-literal-sort-keys
     fioAccountId: 'a1',
@@ -124,7 +124,7 @@ test('My FioSyncer - first start', async () => {
   fetchMock.resetMocks();
   fetchMock.mockResponseOnce(''); // never call
   const tt3 = await fds.storeTransactionRecord({
-    ps: "NEW",
+    ps: 'NEW',
     fioId: 1235,
     // tslint:disable-next-line:object-literal-sort-keys
     fioAccountId: 'a1',
