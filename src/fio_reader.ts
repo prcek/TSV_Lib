@@ -107,7 +107,7 @@ export class FioReader {
     if (r.status === 409) {
       return null;
     }
-    throw Error("FioReader.getLast http status error "+r.status);
+    throw Error('FioReader.getLast http status error ' + r.status);
   }
 
   public async getDayLastId(checkDate: Date): Promise<number | null> {
@@ -146,7 +146,7 @@ export class FioReader {
     if (r.status === 409) {
       return null;
     }
-    throw Error("FioReader.getPeriods http status error"+r.status);
+    throw Error('FioReader.getPeriods http status error' + r.status);
   }
   private async thfetch(url: string): Promise<Response> {
     return this.thdisabled ? fetch(url) : this.thfetchInternal(url);

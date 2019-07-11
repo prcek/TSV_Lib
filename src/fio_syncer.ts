@@ -60,7 +60,7 @@ export class FioSyncer {
   public async syncDate(date: Date): Promise<boolean> {
     const trs = await this.reader.getPeriods(date, date);
     if (trs === null) {
-        return false;
+      return false;
     }
     if (trs.accountStatement.transactionList.transaction.length) {
       const dxo = await Promise.all(
@@ -76,7 +76,7 @@ export class FioSyncer {
   public async syncLast(): Promise<boolean> {
     const trs = await this.reader.getLast();
     if (trs == null) {
-        return false;
+      return false;
     }
     if (trs.accountStatement.transactionList.transaction.length) {
       await Promise.all(

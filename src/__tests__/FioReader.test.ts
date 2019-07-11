@@ -172,15 +172,12 @@ test('My FioReader - GetPeriod Throttle', async () => {
   expect(fetchMock.mock.calls.length).toBe(3);
 });
 
-
 test('My FioReader - http status 409', async () => {
   fetchMock.resetMocks();
   fetchMock.mockResponseOnce(tdJsonDayEmpty);
   const fr = new FioReader('test_token');
   fr.test_disableThrottling();
-  expect( await fr.getLast()).not.toBeNull();
-  fetchMock.mockResponseOnce("",{status:409});
-  expect( await fr.getLast()).toBeNull();
- 
-
+  expect(await fr.getLast()).not.toBeNull();
+  fetchMock.mockResponseOnce('', { status: 409 });
+  expect(await fr.getLast()).toBeNull();
 });
