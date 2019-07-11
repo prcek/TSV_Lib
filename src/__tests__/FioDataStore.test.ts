@@ -167,7 +167,7 @@ test('FioDataStore -  fetchOneNew, updateStatus', async () => {
   expect(nt).not.toBeNull();
   expect(nt).toMatchObject({ ps: 'NEW' });
   expect(
-    await fds.changeTransactionStatus((nt as IFioBankTransaction)._id, FioTransactionProcessingStatus.SOLVED),
+    await fds.changeTransactionStatus((nt as IFioBankTransaction)._id, FioTransactionProcessingStatus.SOLVED, null),
   ).toBe(true);
 
   expect(await fds.fetchOneNewTransaction()).toBeNull();
