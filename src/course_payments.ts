@@ -93,13 +93,13 @@ export class CoursePaymentsStore {
 
   public async checkNewBankPaymentExact(accountId: string, vs: string, amount: number): Promise<boolean> {
     if (amount == null) {
-        return false;
+      return false;
     }
     if (amount <= 0) {
-        return false;
+      return false;
     }
 
-    const si = await this.lookupAndCheckStudent(accountId,vs);
+    const si = await this.lookupAndCheckStudent(accountId, vs);
 
     if (si) {
       if (si.paid === 0 && si.courseCost === amount) {
@@ -111,43 +111,41 @@ export class CoursePaymentsStore {
 
   public async tryAutoNewPayment(tr: IFioBankTransaction): Promise<ICoursePayment | null> {
     if (tr.ps !== FioTransactionProcessingStatus.NEW) {
-        return null;
+      return null;
     }
     if (tr.type !== FioTransactionType.IN) {
-        return null;
+      return null;
     }
     if (tr.vs == null) {
-        return null;
+      return null;
     }
     if (tr.date == null) {
-        return null;
+      return null;
     }
     if (!(tr.amount > 0)) {
-        return null;
+      return null;
     }
 
-   
-    const si = await this.lookupAndCheckStudent(tr.fioAccountId,tr.vs);
+    const si = await this.lookupAndCheckStudent(tr.fioAccountId, tr.vs);
     if (si == null) {
-        // console.log("NO SI for", tr.fioAccountId,tr.vs);
-        return null;
+      // console.log("NO SI for", tr.fioAccountId,tr.vs);
+      return null;
     }
-    if (si.paid +tr.amount <= si.courseCost) {
-        const cp: ICoursePayment = {
-            _id:null,
-            type: ECoursePaymentType.AUTO,
-            date: tr.date,
-            amount: tr.amount,
-            firmKey: si.firmKey,
-            studentKey: si.studentKey,
-            fioTrRef: tr._id,
-            manualComment: null,
-            manualRef: null,
-        };
-        return this.storeNewPayment(cp);
-    } 
+    if (si.paid + tr.amount <= si.courseCost) {
+      const cp: ICoursePayment = {
+        _id: null,
+        type: ECoursePaymentType.AUTO,
+        date: tr.date,
+        amount: tr.amount,
+        firmKey: si.firmKey,
+        studentKey: si.studentKey,
+        fioTrRef: tr._id,
+        manualComment: null,
+        manualRef: null,
+      };
+      return this.storeNewPayment(cp);
+    }
     return null;
-
   }
 
   public async storeNewPayment(cp: ICoursePayment): Promise<ICoursePayment> {
@@ -182,12 +180,12 @@ export class CoursePaymentsStore {
   }
   private async lookupAndCheckStudent(accountId: string, vs: string): Promise<IStudentInfo | null> {
     if (accountId == null) {
-        return null;
+      return null;
     }
     if (vs == null) {
-        return null;
+      return null;
     }
- 
+
     const firmKey = this.lookupFirmKey(accountId);
     if (firmKey === null) {
       return null;
