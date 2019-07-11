@@ -19,7 +19,7 @@ export enum FioTransactionType {
 export interface IFioBankTransaction {
   _id: any;
   ps: FioTransactionProcessingStatus;
-
+  psRef: string | null;
   fioId: number;
   fioAccountId: string;
   date: Date;

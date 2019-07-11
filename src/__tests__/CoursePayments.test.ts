@@ -1,5 +1,5 @@
 
-import { CoursePaymentsStore, IStudentInfo } from '../course_payments';
+import { CoursePaymentsStore, ECoursePaymentType, ICoursePayment, IStudentInfo } from '../course_payments';
 
 const lookup = jest.fn( (vs: string): Promise<IStudentInfo | null> => {
   let si: IStudentInfo | null = null;
@@ -10,7 +10,11 @@ const lookup = jest.fn( (vs: string): Promise<IStudentInfo | null> => {
       case "4": si = { studentKey:"st4", firmKey:"f2", courseCost:1200, paid:0}; break;
   }
   return Promise.resolve(si);
-})
+});
+
+const update = jest.fn( (studentKey: string, paid: number): Promise<boolean> => {
+    return Promise.resolve(true);
+});
 
 test('CoursePayments - lookup Exact', async () => {
   // lookup.mockResolvedValueOnce({
@@ -21,8 +25,10 @@ test('CoursePayments - lookup Exact', async () => {
   
   const cps = new CoursePaymentsStore({
       lookupStudentInfo: lookup,
+      updateStudentPaymentInfo: update,
       firmAccounts: {"f1":["ac1"], "f2":["ac2","ac3"]}
   });
+
   expect(await cps.checkNewBankPaymentExact("ac1","1",1000)).toBe(true);
   expect(await cps.checkNewBankPaymentExact("ac2","1",1000)).toBe(false); // wrong account
   expect(await cps.checkNewBankPaymentExact("ac1","1",999)).toBe(false);
@@ -33,4 +39,32 @@ test('CoursePayments - lookup Exact', async () => {
   expect(await cps.checkNewBankPaymentExact("ac4","4",1200)).toBe(false);
 
 });
+
+
+
+test('CoursePayments - insert payment', async () => {
+
+    update.mockClear();
+    const cps = new CoursePaymentsStore({
+        lookupStudentInfo: lookup,
+        updateStudentPaymentInfo: update,
+        firmAccounts: {"f1":["ac1"], "f2":["ac2","ac3"]}
+    });
+
+    const np  = {
+        _id: 1,
+       type: ECoursePaymentType.AUTO,
+       date: new Date(),
+       amount: 1000,
+       firmKey: "f1",
+       studentKey: "st1"
+    } as  ICoursePayment;
+
+    expect(await cps.storeNewPayment(np)).toMatchObject({_id: expect.anything()});
+    expect(update).toHaveBeenCalledTimes(1);
+   // expect(update).toHaveBeenCalledWith("st1",1000);
+    expect(await cps.storeNewPayment(np)).toMatchObject({_id: expect.anything()});
+    expect(update).toHaveBeenCalledTimes(2);
+   // expect(update).toHaveBeenCalledWith("st1",2000);
+});  
   

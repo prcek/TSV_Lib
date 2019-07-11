@@ -138,6 +138,7 @@ export class FioSyncer {
     return this.store.storeTransactionRecord({
       _id: null,
       ps,
+      psRef: null,
       fioId: t.id,
       // tslint:disable-next-line:object-literal-sort-keys
       fioAccountId: ainfo.accountId,
