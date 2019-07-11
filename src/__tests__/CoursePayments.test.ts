@@ -1,6 +1,7 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import * as mongoose from 'mongoose';
 import { CoursePaymentsStore, ECoursePaymentType, ICoursePayment, IStudentInfo } from '../course_payments';
+import { FioDataStore, FioTransactionType, IFioBankTransaction } from '../fio_ds';
 
 const mongod = new MongoMemoryServer({ debug: false, autoStart: false });
 
@@ -108,3 +109,48 @@ test('CoursePayments - insert payments', async () => {
 
   mc.close();
 });
+
+
+test("CoursePayments tryAuto", async ()=>{
+
+    update.mockClear();
+    const muri = await mongod.getConnectionString();
+    const mc = await createMongooseConnection(muri);
+    const cps = new CoursePaymentsStore(mc, {
+      lookupStudentInfo: lookup,
+      updateStudentPaymentInfo: update,
+      firmAccounts: { f1: ['ac1'], f2: ['ac2', 'ac3'] },
+    });
+  
+    const fds = new FioDataStore(mc, 'ac1');
+
+    expect(await fds.fetchOneNewTransaction()).toBeNull();
+  
+    const ltr = await fds.storeTransactionRecord({
+      ps: 'NEW',
+      fioId: 3,
+      fioAccountId: 'ac1',
+      date: new Date('2019-10-10'),
+      amount: 100,
+      currency: 'CZK',
+      type: FioTransactionType.IN,
+      vs: "1"
+    } as IFioBankTransaction);
+  
+    const nt = await fds.fetchOneNewTransaction();
+    expect(nt).not.toBeNull();
+    expect(nt).toMatchObject({ ps: 'NEW' });
+    const nnt = nt as IFioBankTransaction;
+
+    const acp = await cps.tryAutoNewPayment(nnt);
+    expect(
+      acp
+    ).not.toBeNull();
+    
+    expect(update).toHaveBeenCalledTimes(1);
+    expect(update).toHaveBeenCalledWith('st1', 100);
+    const ps = await cps.getStudentPayments("st1");
+    expect(ps).toHaveLength(1);
+    expect(ps[0]).toMatchObject({fioTrRef: nnt._id.toString()})
+    mc.close();
+})
