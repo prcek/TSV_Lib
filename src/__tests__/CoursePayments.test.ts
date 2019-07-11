@@ -42,7 +42,7 @@ test('CoursePayments - lookup Exact', async () => {
 
 
 
-test('CoursePayments - insert payment', async () => {
+test('CoursePayments - insert payments', async () => {
 
     update.mockClear();
     const cps = new CoursePaymentsStore({
