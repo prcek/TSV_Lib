@@ -147,9 +147,10 @@ export class FioDataStore {
   }
 
   public async fetchReviewTransactions(): Promise<IFioBankTransaction[]> {
-    return this.fioBankTransactionModel.find({ fioAccountId: this.fioAccountId, ps: FioTransactionProcessingStatus.REVIEW }).sort({ fioId: -1 });
+    return this.fioBankTransactionModel
+      .find({ fioAccountId: this.fioAccountId, ps: FioTransactionProcessingStatus.REVIEW })
+      .sort({ fioId: -1 });
   }
-
 
   public async fetchOneNewTransaction(): Promise<IFioBankTransaction | null> {
     return this.fioBankTransactionModel

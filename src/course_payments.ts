@@ -97,7 +97,7 @@ export class CoursePaymentsStore {
     }
 
     if (!Number.isInteger(amount)) {
-        return false;
+      return false;
     }
 
     if (amount <= 0) {
@@ -128,7 +128,7 @@ export class CoursePaymentsStore {
       return null;
     }
     if (!Number.isInteger(tr.amount)) {
-        return null;
+      return null;
     }
     if (!(tr.amount > 0)) {
       return null;
@@ -139,7 +139,7 @@ export class CoursePaymentsStore {
       // console.log("NO SI for", tr.fioAccountId,tr.vs);
       return null;
     }
-    if (si.paid + tr.amount <= (si.courseCost*2)) {
+    if (si.paid + tr.amount <= si.courseCost * 2) {
       const cp: ICoursePayment = {
         _id: null,
         type: ECoursePaymentType.AUTO,
