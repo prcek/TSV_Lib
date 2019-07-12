@@ -4,6 +4,7 @@ import * as R from 'ramda';
 
 export enum FioTransactionProcessingStatus {
   NEW = 'NEW',
+  REVIEW = 'REVIEW',
   IGNORE = 'IGNORE',
   ERROR = 'ERROR',
   SOLVED = 'SOLVED',
@@ -140,9 +141,16 @@ export class FioDataStore {
     }
     throw Error("can't insert tr");
   }
+
   public async fetchAllTransactions(): Promise<IFioBankTransaction[]> {
     return this.fioBankTransactionModel.find({ fioAccountId: this.fioAccountId }).sort({ fioId: -1 });
   }
+
+  public async fetchReviewTransactions(): Promise<IFioBankTransaction[]> {
+    return this.fioBankTransactionModel.find({ fioAccountId: this.fioAccountId, ps: FioTransactionProcessingStatus.REVIEW }).sort({ fioId: -1 });
+  }
+
+
   public async fetchOneNewTransaction(): Promise<IFioBankTransaction | null> {
     return this.fioBankTransactionModel
       .findOne({ fioAccountId: this.fioAccountId, ps: FioTransactionProcessingStatus.NEW })
