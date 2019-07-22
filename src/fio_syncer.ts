@@ -1,14 +1,29 @@
 import { FioDataStore, FioTransactionProcessingStatus, FioTransactionType } from './fio_ds';
 import { FioReader, IFioInfo, IFioTransaction } from './fio_reader';
 
+type TLogFunction =  (msg: string) => Promise<any>;
+
+const nullLog : TLogFunction = async (m:string) => Promise.resolve(true);
+export interface IFioSyncerLogger {
+  logRaw: TLogFunction;
+  logTransaction: TLogFunction;
+}
+
+
 export class FioSyncer {
   private reader: FioReader;
   private store: FioDataStore;
   private ready: boolean = false;
+  private logRaw: TLogFunction = nullLog;
+  private logTransaction: TLogFunction = nullLog;
 
-  constructor(reader: FioReader, store: FioDataStore) {
+  constructor(reader: FioReader, store: FioDataStore, logger: IFioSyncerLogger | null = null) {
     this.reader = reader;
     this.store = store;
+    if (logger) {
+      this.logRaw = logger.logRaw;
+      this.logTransaction = logger.logTransaction;
+    }
   }
 
   //  public async isFirstStart(): Promise<boolean> {
@@ -59,6 +74,7 @@ export class FioSyncer {
 
   public async syncDate(date: Date): Promise<boolean> {
     const trs = await this.reader.getPeriods(date, date);
+    await this.logRaw(JSON.stringify({method:"syncDate",args:[date],result:trs}));
     if (trs === null) {
       return false;
     }
@@ -75,6 +91,7 @@ export class FioSyncer {
 
   public async syncLast(): Promise<boolean> {
     const trs = await this.reader.getLast();
+    await this.logRaw(JSON.stringify({method:"syncLast",args:[],result:trs}));
     if (trs == null) {
       return false;
     }
@@ -135,7 +152,7 @@ export class FioSyncer {
         break;
     }
 
-    return this.store.storeTransactionRecord({
+    const newtr = await this.store.storeTransactionRecord({
       _id: null,
       ps,
       psRef: null,
@@ -158,5 +175,7 @@ export class FioSyncer {
       comment: t.comment,
       rawData: t.rawData,
     });
+    await this.logTransaction(JSON.stringify({method:"storeTr",args:[ainfo,t,ps],result:newtr}));
+    return newtr;
   }
 }

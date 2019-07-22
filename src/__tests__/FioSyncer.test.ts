@@ -6,6 +6,7 @@ import { FioDataStore, FioReader, FioSyncer } from '../index';
 import { IFioBankTransaction, FioTransactionProcessingStatus, FioTransactionType } from '../fio_ds';
 // tslint:disable-next-line:ordered-imports
 import { tdJsonDay1, tdFioAccountId, tdJsonDay0, tdJsonDayEmpty, tdJsonTrTypes } from '../__test_data__/data';
+import { IFioSyncerLogger } from '../fio_syncer';
 
 const fetchMock = fetch as FetchMock;
 
@@ -208,5 +209,32 @@ test('My FioSyncer - transaction types', async () => {
   expect(atrs.length).toBe(1);
   expect(atrs[0].type).toBe(FioTransactionType.IN);
 
+  mc.close();
+});
+
+
+test('My FioSyncer - logger', async () => {
+  fetchMock.resetMocks();
+  fetchMock.mockResponseOnce(tdJsonTrTypes);
+  const muri = await mongod.getConnectionString();
+  const mc = await createMongooseConnection(muri);
+  const fds = new FioDataStore(mc, tdFioAccountId);
+  const frd = new FioReader('test_token');
+  const logger = {
+    logRaw: jest.fn(),
+    logTransaction: jest.fn()
+  }
+  logger.logRaw.mockResolvedValue(true);
+  logger.logTransaction.mockResolvedValue(true);
+  const fs = new FioSyncer(frd, fds, logger);
+
+  expect(await fs.syncLast()).toBe(true);
+  const atrs = await fds.fetchAllTransactions(); // last as first
+  expect(atrs.length).toBe(1);
+  expect(atrs[0].type).toBe(FioTransactionType.IN);
+  expect(logger.logRaw.mock.calls.length).toBe(1);
+  expect(logger.logRaw).toHaveBeenCalledWith('{\"method\":\"syncLast\",\"args\":[],\"result\":{\"accountStatement\":{\"info\":{\"accountId\":\"2901234567\",\"bankId\":\"2010\",\"currency\":\"CZK\",\"iban\":\"CZ8120100000002901234567\",\"bic\":\"FIOBCZPPXXX\",\"idFrom\":18247244228,\"idTo\":18247668131,\"idLastDownload\":null},\"transactionList\":{\"transaction\":[{\"id\":21369426788,\"date\":\"2019-07-08+0200\",\"amount\":3400,\"currency\":\"CZK\",\"type\":\"Bezhotovostní příjem\",\"fAccountId\":\"613989173\",\"fBankId\":\"0800\",\"fAccountName\":\"Kovář Marek\",\"fBankName\":\"Česká spořitelna, a.s.\",\"ks\":\"0000\",\"vs\":\"99038366\",\"ss\":null,\"userRef\":\"Kovář Marek\",\"userMsg\":\"D101\",\"comment\":\"Kovář Marek\",\"rawData\":\"{\\\"column22\\\":{\\\"value\\\":21369426788,\\\"name\\\":\\\"ID pohybu\\\",\\\"id\\\":22},\\\"column0\\\":{\\\"value\\\":\\\"2019-07-08+0200\\\",\\\"name\\\":\\\"Datum\\\",\\\"id\\\":0},\\\"column1\\\":{\\\"value\\\":3400,\\\"name\\\":\\\"Objem\\\",\\\"id\\\":1},\\\"column14\\\":{\\\"value\\\":\\\"CZK\\\",\\\"name\\\":\\\"Měna\\\",\\\"id\\\":14},\\\"column2\\\":{\\\"value\\\":\\\"613989173\\\",\\\"name\\\":\\\"Protiúčet\\\",\\\"id\\\":2},\\\"column10\\\":{\\\"value\\\":\\\"Kovář Marek\\\",\\\"name\\\":\\\"Název protiúčtu\\\",\\\"id\\\":10},\\\"column3\\\":{\\\"value\\\":\\\"0800\\\",\\\"name\\\":\\\"Kód banky\\\",\\\"id\\\":3},\\\"column12\\\":{\\\"value\\\":\\\"Česká spořitelna, a.s.\\\",\\\"name\\\":\\\"Název banky\\\",\\\"id\\\":12},\\\"column4\\\":{\\\"value\\\":\\\"0000\\\",\\\"name\\\":\\\"KS\\\",\\\"id\\\":4},\\\"column5\\\":{\\\"value\\\":\\\"99038366\\\",\\\"name\\\":\\\"VS\\\",\\\"id\\\":5},\\\"column6\\\":null,\\\"column7\\\":{\\\"value\\\":\\\"Kovář Marek\\\",\\\"name\\\":\\\"Uživatelská identifikace\\\",\\\"id\\\":7},\\\"column16\\\":{\\\"value\\\":\\\"D101\\\",\\\"name\\\":\\\"Zpráva pro příjemce\\\",\\\"id\\\":16},\\\"column8\\\":{\\\"value\\\":\\\"Bezhotovostní příjem\\\",\\\"name\\\":\\\"Typ\\\",\\\"id\\\":8},\\\"column9\\\":null,\\\"column18\\\":null,\\\"column25\\\":{\\\"value\\\":\\\"Kovář Marek\\\",\\\"name\\\":\\\"Komentář\\\",\\\"id\\\":25},\\\"column26\\\":null,\\\"column17\\\":{\\\"value\\\":25021190533,\\\"name\\\":\\\"ID pokynu\\\",\\\"id\\\":17}}\"}]}}}}');
+  expect(logger.logTransaction.mock.calls.length).toBe(1);
+  
   mc.close();
 });
