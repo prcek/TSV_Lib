@@ -1,14 +1,13 @@
 import { FioDataStore, FioTransactionProcessingStatus, FioTransactionType } from './fio_ds';
 import { FioReader, IFioInfo, IFioTransaction } from './fio_reader';
 
-type TLogFunction =  (msg: string) => Promise<any>;
+type TLogFunction = (msg: string) => Promise<any>;
 
-const nullLog : TLogFunction = async (m:string) => Promise.resolve(true);
+const nullLog: TLogFunction = async (m: string) => Promise.resolve(true);
 export interface IFioSyncerLogger {
   logRaw: TLogFunction;
   logTransaction: TLogFunction;
 }
-
 
 export class FioSyncer {
   private reader: FioReader;
@@ -74,7 +73,7 @@ export class FioSyncer {
 
   public async syncDate(date: Date): Promise<boolean> {
     const trs = await this.reader.getPeriods(date, date);
-    await this.logRaw(JSON.stringify({method:"syncDate",args:[date],result:trs}));
+    await this.logRaw(JSON.stringify({ method: 'syncDate', args: [date], result: trs }));
     if (trs === null) {
       return false;
     }
@@ -91,7 +90,7 @@ export class FioSyncer {
 
   public async syncLast(): Promise<boolean> {
     const trs = await this.reader.getLast();
-    await this.logRaw(JSON.stringify({method:"syncLast",args:[],result:trs}));
+    await this.logRaw(JSON.stringify({ method: 'syncLast', args: [], result: trs }));
     if (trs == null) {
       return false;
     }
@@ -175,7 +174,7 @@ export class FioSyncer {
       comment: t.comment,
       rawData: t.rawData,
     });
-    await this.logTransaction(JSON.stringify({method:"storeTr",args:[ainfo,t,ps],result:newtr}));
+    await this.logTransaction(JSON.stringify({ method: 'storeTr', args: [ainfo, t, ps], result: newtr }));
     return newtr;
   }
 }
