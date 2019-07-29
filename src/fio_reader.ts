@@ -99,15 +99,22 @@ export class FioReader {
   }
 
   public async getLast(): Promise<IFioRecord | null> {
-    const r = await this.thfetch(this.apiUrl + 'last/' + this.apiToken + '/transactions.json');
-    if (r.status === 200) {
-      const js = await r.json();
-      return this.raw2fr(js);
-    }
-    if (r.status === 409) {
-      return null;
-    }
-    throw Error('FioReader.getLast http status error ' + r.status);
+    try { 
+      const r = await this.thfetch(this.apiUrl + 'last/' + this.apiToken + '/transactions.json');
+      if (r.status === 200) {
+        const js = await r.json();
+        return this.raw2fr(js);
+      }
+      if (r.status === 409) {
+        return null;
+      }
+      throw Error('FioReader.getLast http status error ' + r.status);
+    } catch (e) {
+      if (e.type === "system" && e.errno==="ETIMEDOUT") {
+        return null;
+      }
+      throw e;
+    } 
   }
 
   public async getDayLastId(checkDate: Date): Promise<number | null> {
@@ -127,26 +134,33 @@ export class FioReader {
   }
 
   public async getPeriods(fromDate: Date, toDate: Date): Promise<IFioRecord | null> {
-    const r = await this.thfetch(
-      this.apiUrl +
-        'periods/' +
-        this.apiToken +
-        '/' +
-        this.date2fioParam(fromDate) +
-        '/' +
-        this.date2fioParam(toDate) +
-        '/transactions.json',
-    );
+    try {
+      const r = await this.thfetch(
+        this.apiUrl +
+          'periods/' +
+          this.apiToken +
+          '/' +
+          this.date2fioParam(fromDate) +
+          '/' +
+          this.date2fioParam(toDate) +
+          '/transactions.json',
+      );
 
-    if (r.status === 200) {
-      const js = await r.json();
-      return this.raw2fr(js);
-    }
+      if (r.status === 200) {
+        const js = await r.json();
+        return this.raw2fr(js);
+      }
 
-    if (r.status === 409) {
-      return null;
-    }
-    throw Error('FioReader.getPeriods http status error' + r.status);
+      if (r.status === 409) {
+        return null;
+      }
+      throw Error('FioReader.getPeriods http status error' + r.status);
+    } catch (e) {
+      if (e.type === "system" && e.errno==="ETIMEDOUT") {
+        return null;
+      }
+      throw e;
+    } 
   }
   private async thfetch(url: string): Promise<Response> {
     return this.thdisabled ? fetch(url) : this.thfetchInternal(url);
