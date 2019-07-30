@@ -1,5 +1,19 @@
-import { InvoiceResolver } from '../invoice';
+import { graphql, GraphQLObjectType, GraphQLSchema } from 'graphql';
+import { GraphQLInvoiceQueryType, IInvoiceQueryContext, InvoiceResolver } from '../invoice';
 import { createMongooseConnection, createObjectId, mongod } from '../jestutils';
+
+
+const schema = new GraphQLSchema({
+    query: new GraphQLObjectType({
+      name: 'Query',
+      fields: () => ({
+        invoice: {
+          type: GraphQLInvoiceQueryType,
+          resolve: () => ({})
+        }
+      })
+    })
+  })
 
 beforeEach(() => {
     // console.log('beforeEach');
@@ -69,3 +83,98 @@ test('Invoice CUR - model', async () => {
     }
     mc.close();
 })
+
+
+  
+
+test.only('Invoice CUR - gql', async () => {
+    const muri = await mongod.getConnectionString();
+    const mc = await createMongooseConnection(muri);
+    const ir = new InvoiceResolver(mc)
+
+    const ctx: IInvoiceQueryContext = {
+        invoiceResolver:ir
+    }
+    
+    const result = await graphql(schema, `
+    query Q {
+        invoice { 
+            all {
+                id
+                student_key
+                __typename
+              }
+        }
+    }
+    `, {}, ctx);
+    expect(result.data).not.toBeNull();
+    expect(result.errors).toBeUndefined();
+    if (result.data) {
+        expect(result.data.invoice).not.toBeNull();
+        if (result.data.invoice) {
+            expect(result.data.invoice.all).not.toBeNull();
+            if (result.data.invoice.all) {
+                expect(result.data.invoice.all).toHaveLength(0);
+            }
+        }
+    }
+    const newI = await ir.create({
+        student_key: "ssk",
+        no: "no1",
+        s3key: null,
+        duplicate: false,
+        amount: 123,
+        description: "popiska",
+        sale_date: new Date(),
+        issue_date: new Date(),
+    });
+    const newIid = newI?newI._id.toString():null;
+
+    const result2 = await graphql(schema, `
+    query Q {
+        invoice { 
+            all {
+                id
+                student_key
+                __typename
+              }
+        }
+    }
+    `, {}, ctx);
+    expect(result2.data).not.toBeNull();
+    expect(result2.errors).toBeUndefined();
+    if (result2.data) {
+        expect(result2.data.invoice).not.toBeNull();
+        if (result2.data.invoice) {
+            expect(result2.data.invoice.all).not.toBeNull();
+            if (result2.data.invoice.all) {
+                expect(result2.data.invoice.all).toHaveLength(1);
+            }
+        }
+    }
+    
+
+    const result3 = await graphql(schema, `
+    query Q($id:ID!) {
+        invoice { 
+            byId(id:$id) {
+                id
+                student_key
+                __typename
+              }
+        }
+    }
+    `, {}, ctx, {id:newIid});
+    expect(result3.data).not.toBeNull();
+    expect(result3.errors).toBeUndefined();
+    if (result3.data && result3.data.invoice) {
+        expect(result3.data.invoice).toHaveProperty("byId");
+        if (result3.data.invoice.byId) {
+            expect(result3.data.invoice.byId).toHaveProperty("id",newIid);
+            expect(result3.data.invoice.byId).toHaveProperty("student_key","ssk");
+        }
+    } else {
+        expect(true).toBe(false);
+    }
+    mc.close();
+});

@@ -175,14 +175,14 @@ export interface IInvoiceQueryContext  {
 export const GraphQLInvoiceQueryType = new GraphQLObjectType<any,IInvoiceQueryContext,any>({
     name: 'InvoiceQuery',
     fields: {
-        byKey: {
+        byId: {
             type: GraphQLInvoiceType,
             args: {
-                key: { type: GraphQLString}
+                id: { type: GraphQLID}
             },
             resolve: async (_,args,ctx) => {
                // ctx.invoiceResolver.create(args)
-               return ctx.invoiceResolver.getOneById(args.key);
+               return ctx.invoiceResolver.getOneById(args.id);
             }
         },
         all: {
