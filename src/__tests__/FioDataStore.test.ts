@@ -2,23 +2,8 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import * as mongoose from 'mongoose';
 import { FioDataStore, FioTransactionProcessingStatus, FioTransactionType, IFioBankTransaction } from '../fio_ds';
 
-const mongod = new MongoMemoryServer({ debug: false, autoStart: false });
+import { createMongooseConnection, mongod } from '../jestutils';
 
-async function createMongooseConnection(mongoUri: string): Promise<mongoose.Connection> {
-  const mongooseOpts = {
-    // options for mongoose 4.11.3 and above
-    autoReconnect: true,
-    reconnectTries: Number.MAX_VALUE,
-    // tslint:disable-next-line:object-literal-sort-keys
-    reconnectInterval: 1000,
-    useNewUrlParser: true,
-    useCreateIndex: true,
-    useFindAndModify: false,
-  };
-
-  const mongooseConnection = await mongoose.createConnection(mongoUri, mongooseOpts);
-  return mongooseConnection;
-}
 
 beforeEach(() => {
   // console.log('beforeEach');

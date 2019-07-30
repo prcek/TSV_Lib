@@ -8,25 +8,10 @@ import { IFioBankTransaction, FioTransactionProcessingStatus, FioTransactionType
 import { tdJsonDay1, tdFioAccountId, tdJsonDay0, tdJsonDayEmpty, tdJsonTrTypes } from '../__test_data__/data';
 import { IFioSyncerLogger } from '../fio_syncer';
 
+import { createMongooseConnection, mongod } from '../jestutils';
+
 const fetchMock = fetch as FetchMock;
 
-const mongod = new MongoMemoryServer({ debug: false, autoStart: false });
-
-async function createMongooseConnection(mongoUri: string): Promise<mongoose.Connection> {
-  const mongooseOpts = {
-    // options for mongoose 4.11.3 and above
-    autoReconnect: true,
-    reconnectTries: Number.MAX_VALUE,
-    // tslint:disable-next-line:object-literal-sort-keys
-    reconnectInterval: 1000,
-    useNewUrlParser: true,
-    useCreateIndex: true,
-    useFindAndModify: false,
-  };
-
-  const mongooseConnection = await mongoose.createConnection(mongoUri, mongooseOpts);
-  return mongooseConnection;
-}
 
 beforeEach(() => {
   // console.log('beforeEach');
