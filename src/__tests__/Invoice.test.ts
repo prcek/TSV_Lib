@@ -58,8 +58,12 @@ test('Invoice CUR - model', async () => {
     });
     expect(await ir.getAll()).toHaveLength(2);
     expect(newI).toHaveProperty("_id");
-    if (newI2) {
+    if (newI2 && newI) {
         expect(await ir.getOneById(newI2._id)).not.toBeNull();
+        expect(await ir.getOneById(newI._id)).toHaveProperty("description","d2");
+        expect(await ir.updateOneById(newI2._id,{description:"d3"})).toHaveProperty("description","d3");
+        expect(await ir.getOneById(newI._id)).toHaveProperty("description","d2");
+        expect(await ir.getOneById(newI2._id)).toHaveProperty("description","d3");
     } else {
         expect(true).toBe(false);
     }
