@@ -6,6 +6,7 @@ import {
     GraphQLID,
     GraphQLInt,
     GraphQLList,
+    GraphQLNonNull,
     GraphQLObjectType,
     GraphQLString
 } from 'graphql';
@@ -189,6 +190,85 @@ export const GraphQLInvoiceQueryType = new GraphQLObjectType<any,IInvoiceQueryCo
             type: new GraphQLList(GraphQLInvoiceType),
             resolve: (_,args,ctx) => {
                 return ctx.invoiceResolver.getAll();
+            }
+        },
+    },
+    
+});
+
+export const GraphQLInvoiceMutationType = new GraphQLObjectType<any,IInvoiceQueryContext,any>({
+    name: 'InvoiceMutation',
+    fields: {
+        create: {
+            type: GraphQLInvoiceType,
+            args: {
+                student_key: {
+                    type: new GraphQLNonNull(GraphQLString),
+                },
+        
+                no: {
+                    type: GraphQLString,
+                },
+        
+                s3key: {
+                    type: GraphQLString,
+                },
+
+                duplicate: { type: GraphQLBoolean },
+                
+                amount: { type: GraphQLInt },
+        
+                description: {
+                    type: GraphQLString,
+                },
+        
+                sale_date: {
+                    type: GraphQLDate,
+                },
+                issue_date: {
+                    type: GraphQLDate,
+                },
+        
+            },
+            resolve: async (_,args,ctx) => {
+               return ctx.invoiceResolver.create(args);
+            }
+        },
+        update: {
+            type: GraphQLInvoiceType,
+            args: {
+                id: { type: new GraphQLNonNull(GraphQLID)},
+
+                student_key: {
+                    type: GraphQLString,
+                },
+        
+                no: {
+                    type: GraphQLString,
+                },
+        
+                s3key: {
+                    type: GraphQLString,
+                },
+
+                duplicate: { type: GraphQLBoolean },
+                
+                amount: { type: GraphQLInt },
+        
+                description: {
+                    type: GraphQLString,
+                },
+        
+                sale_date: {
+                    type: GraphQLDate,
+                },
+                issue_date: {
+                    type: GraphQLDate,
+                },
+        
+            },
+            resolve: (_,args,ctx) => {
+                return ctx.invoiceResolver.updateOneById(args.id,args);
             }
         },
     },

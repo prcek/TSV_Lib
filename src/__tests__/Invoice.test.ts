@@ -1,5 +1,5 @@
 import { graphql, GraphQLObjectType, GraphQLSchema } from 'graphql';
-import { GraphQLInvoiceQueryType, IInvoiceQueryContext, InvoiceResolver } from '../invoice';
+import { GraphQLInvoiceMutationType, GraphQLInvoiceQueryType, IInvoiceQueryContext, InvoiceResolver } from '../invoice';
 import { createMongooseConnection, createObjectId, mongod } from '../jestutils';
 
 
@@ -12,6 +12,15 @@ const schema = new GraphQLSchema({
           resolve: () => ({})
         }
       })
+    }),
+    mutation: new GraphQLObjectType({
+        name: 'Mutation',
+        fields: () => ({
+            invoice: {
+              type: GraphQLInvoiceMutationType,
+              resolve: () => ({})
+            }
+          })
     })
   })
 
@@ -176,5 +185,47 @@ test.only('Invoice CUR - gql', async () => {
     } else {
         expect(true).toBe(false);
     }
+
+
+// mutations
+
+    const result4 = await graphql(schema, `
+    mutation M($id:ID!, $description:String ) {
+        invoice { 
+            update(id:$id,description:$description) {
+                id
+                student_key
+                __typename
+            }
+        }
+    }
+    `, {}, ctx, {id:newIid,description:"upp"});
+    expect(result4.data).not.toBeNull();
+    expect(result4.errors).toBeUndefined();
+    if (result4.data && result4.data.invoice && result4.data.invoice.update) {
+        expect(result4.data.invoice.update).toHaveProperty("student_key","ssk");
+        const rr = await ir.getOneById(result4.data.invoice.update.id);
+        expect(rr).not.toBeNull();
+        expect(rr).toHaveProperty("description","upp");
+    }
+
+    const result5 = await graphql(schema, `
+    mutation M($student_key:String!, $description:String ) {
+        invoice { 
+            create(description:$description, student_key:$student_key) {
+                id
+                student_key
+                description
+                __typename
+            }
+        }
+    }
+    `, {}, ctx, {student_key:"skk2",description:"popiska2"});
+    expect(result5.data).not.toBeNull();
+    expect(result5.errors).toBeUndefined();
+
+    const rr2 = await ir.getAll();
+    expect(rr2).toHaveLength(2);
+
     mc.close();
 });
