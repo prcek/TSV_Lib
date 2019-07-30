@@ -67,7 +67,7 @@ export class FioSyncer {
     if (lastId !== null && lastTr === null) {
       return this.reader.setLastId(lastId);
     }
-
+    await this.logRaw(JSON.stringify({ method: 'recoverSync', msg:"can't recover", vars: [lastId,lastTr] }));
     return false; //  TODO
   }
 
