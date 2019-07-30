@@ -34,6 +34,19 @@ afterEach(() => {
     return mongod.stop();
 });
   
+test('Invoice CUR - mongo', async () => {
+    // lookup.mockResolvedValueOnce({
+    //   key: "1",
+    //   course_cost: 1,
+    //   paid: 1
+    // });
+    const muri = await mongod.getConnectionString();
+    const mc = await createMongooseConnection(muri);
+    const ir = new InvoiceResolver(mc)
+    expect(mc.collections).toHaveProperty("invoices_NEW2");
+    expect(mc.modelNames()).toContain("InvoiceNew");
+    mc.close();
+});
 
 test('Invoice CUR - model', async () => {
     // lookup.mockResolvedValueOnce({
@@ -96,7 +109,7 @@ test('Invoice CUR - model', async () => {
 
   
 
-test.only('Invoice CUR - gql', async () => {
+test('Invoice CUR - gql', async () => {
     const muri = await mongod.getConnectionString();
     const mc = await createMongooseConnection(muri);
     const ir = new InvoiceResolver(mc)
