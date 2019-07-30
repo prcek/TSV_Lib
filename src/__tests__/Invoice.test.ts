@@ -210,17 +210,18 @@ test.only('Invoice CUR - gql', async () => {
     }
 
     const result5 = await graphql(schema, `
-    mutation M($student_key:String!, $description:String ) {
+    mutation M($student_key:String!, $description:String, $no:String! ) {
         invoice { 
-            create(description:$description, student_key:$student_key) {
+            create(description:$description, student_key:$student_key, no:$no) {
                 id
+                no
                 student_key
                 description
                 __typename
             }
         }
     }
-    `, {}, ctx, {student_key:"skk2",description:"popiska2"});
+    `, {}, ctx, {student_key:"skk2",description:"popiska2",no:"no1"});
     expect(result5.data).not.toBeNull();
     expect(result5.errors).toBeUndefined();
 

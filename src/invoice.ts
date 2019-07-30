@@ -207,7 +207,7 @@ export const GraphQLInvoiceMutationType = new GraphQLObjectType<any,IInvoiceQuer
                 },
         
                 no: {
-                    type: GraphQLString,
+                    type: new GraphQLNonNull(GraphQLString),
                 },
         
                 s3key: {
