@@ -183,49 +183,39 @@ test('My FioReader - http status 409', async () => {
   expect(await fr.getLast()).toBeNull();
 });
 
-
 test('My FioReader - http timeout', async () => {
-
-  
   fetchMock.resetMocks();
-  const feer = new FetchError("request to ... failed","system");
-  feer.code = "ETIMEDOUT";
-  feer.errno = "ETIMEDOUT";
+  const feer = new FetchError('request to ... failed', 'system');
+  feer.code = 'ETIMEDOUT';
+  feer.errno = 'ETIMEDOUT';
 
-
-  const feer2 = new FetchError("request to ... failed","system");
-  feer2.code = "EUNK";
-  feer2.errno = "EUNK";
+  const feer2 = new FetchError('request to ... failed', 'system');
+  feer2.code = 'EUNK';
+  feer2.errno = 'EUNK';
 
   fetchMock.mockRejectedValue(feer2);
 
-  
   const fr = new FioReader('test_token');
   fr.test_disableThrottling();
-
-
 
   try {
     await fr.getLast();
     // Fail test if above expression doesn't throw anything.
     expect(true).toBe(false);
   } catch (e) {
-    expect(e.code).toBe("EUNK");
+    expect(e.code).toBe('EUNK');
   }
 
   try {
-    await fr.getPeriods(new Date(),new Date());
+    await fr.getPeriods(new Date(), new Date());
     // Fail test if above expression doesn't throw anything.
     expect(true).toBe(false);
   } catch (e) {
-    expect(e.code).toBe("EUNK");
+    expect(e.code).toBe('EUNK');
   }
-
 
   fetchMock.mockRejectedValue(feer);
 
   expect(await fr.getLast()).toBeNull();
-  expect(await fr.getPeriods(new Date(),new Date())).toBeNull();
-  
-
+  expect(await fr.getPeriods(new Date(), new Date())).toBeNull();
 });

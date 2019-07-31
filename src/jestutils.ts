@@ -1,5 +1,3 @@
-
-
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import * as mongoose from 'mongoose';
 
@@ -21,10 +19,9 @@ export async function createMongooseConnection(mongoUri: string): Promise<mongoo
   return mongooseConnection;
 }
 
-
 export function generateObjectId() {
-    return mongoose.Types.ObjectId();
+  return mongoose.Types.ObjectId();
 }
-export function createObjectId(s:string) {
-    return mongoose.Types.ObjectId(s);
+export function createObjectId(s: string) {
+  return mongoose.Types.ObjectId(s);
 }

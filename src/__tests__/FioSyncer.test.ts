@@ -12,7 +12,6 @@ import { createMongooseConnection, mongod } from '../jestutils';
 
 const fetchMock = fetch as FetchMock;
 
-
 beforeEach(() => {
   // console.log('beforeEach');
   return mongod.start();

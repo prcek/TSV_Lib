@@ -99,7 +99,7 @@ export class FioReader {
   }
 
   public async getLast(): Promise<IFioRecord | null> {
-    try { 
+    try {
       const r = await this.thfetch(this.apiUrl + 'last/' + this.apiToken + '/transactions.json');
       if (r.status === 200) {
         const js = await r.json();
@@ -110,11 +110,11 @@ export class FioReader {
       }
       throw Error('FioReader.getLast http status error ' + r.status);
     } catch (e) {
-      if (e.type === "system" && e.errno==="ETIMEDOUT") {
+      if (e.type === 'system' && e.errno === 'ETIMEDOUT') {
         return null;
       }
       throw e;
-    } 
+    }
   }
 
   public async getDayLastId(checkDate: Date): Promise<number | null> {
@@ -156,11 +156,11 @@ export class FioReader {
       }
       throw Error('FioReader.getPeriods http status error' + r.status);
     } catch (e) {
-      if (e.type === "system" && e.errno==="ETIMEDOUT") {
+      if (e.type === 'system' && e.errno === 'ETIMEDOUT') {
         return null;
       }
       throw e;
-    } 
+    }
   }
   private async thfetch(url: string): Promise<Response> {
     return this.thdisabled ? fetch(url) : this.thfetchInternal(url);

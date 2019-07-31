@@ -1,8 +1,8 @@
-import { ExecutionResult, graphql, GraphQLObjectType, GraphQLSchema, printSchema} from 'graphql';
+import { ExecutionResult, graphql, GraphQLObjectType, GraphQLSchema, printSchema } from 'graphql';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import * as mongoose from 'mongoose';
 import { FioDataStore, FioReader, FioSyncer } from './index';
-import { GraphQLInvoiceQueryType, IInvoice, IInvoiceQueryContext, InvoiceResolver } from './invoice'
+import { GraphQLInvoiceQueryType, IInvoice, IInvoiceQueryContext, InvoiceResolver } from './invoice';
 // tslint:disable-next-line:no-var-requires
 require('dotenv').config();
 
@@ -78,20 +78,17 @@ connectTestMongoDB().then(async mc => {
 // const keys = Object.keys(FioTransactionProcessingStatus).filter(k => typeof FioTransactionProcessingStatus[k as any] === "number");
 // console.log(keys);
 
-
-
-
 const s = new GraphQLSchema({
   query: new GraphQLObjectType({
     name: 'Query',
     fields: () => ({
       invoice: {
         type: GraphQLInvoiceQueryType,
-        resolve: () => ({})
-      }
-    })
-  })
-})
+        resolve: () => ({}),
+      },
+    }),
+  }),
+});
 const query = `
     query Q {
       invoice {
@@ -114,8 +111,6 @@ const query = `
     }
   `;
 
-
-
 // console.log(s.toConfig());
 console.log(printSchema(s));
 
@@ -123,18 +118,16 @@ interface IContext extends IInvoiceQueryContext {
   extra: string;
 }
 
-
 startLocalMongoDB().then(async mc => {
-  
   const invoiceResolver = new InvoiceResolver(mc);
 
   const n = await invoiceResolver.create({
-    student_key: "ssk",
-    no: "no1",
+    student_key: 'ssk',
+    no: 'no1',
     s3key: null,
     duplicate: false,
     amount: 123,
-    description: "popiska",
+    description: 'popiska',
     sale_date: new Date(),
     issue_date: new Date(),
   });
@@ -143,10 +136,10 @@ startLocalMongoDB().then(async mc => {
   console.log(list);
 
   const ctx: IContext = {
-    extra: "extra",
-    invoiceResolver
-  }
- /*
+    extra: 'extra',
+    invoiceResolver,
+  };
+  /*
   const result = await graphql<{invoice:{a:IInvoice,b:IInvoice}}>(s, query, {}, ctx);
   console.log(result.data);
   if (result.data) {
@@ -162,8 +155,3 @@ startLocalMongoDB().then(async mc => {
   mongod.stop();
   return 'ok';
 });
-
-
-
-
-

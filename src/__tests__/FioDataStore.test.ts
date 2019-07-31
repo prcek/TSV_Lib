@@ -4,7 +4,6 @@ import { FioDataStore, FioTransactionProcessingStatus, FioTransactionType, IFioB
 
 import { createMongooseConnection, mongod } from '../jestutils';
 
-
 beforeEach(() => {
   // console.log('beforeEach');
   return mongod.start();
