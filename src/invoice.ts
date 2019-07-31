@@ -28,7 +28,7 @@ export interface IInvoice {
 }
 
 export const GraphQLInvoiceType = new GraphQLObjectType<IInvoice, any>({
-  name: 'Invoice',
+  name: 'InvoiceNew',
   fields: {
     id: { type: GraphQLID },
 
