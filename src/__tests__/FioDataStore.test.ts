@@ -158,3 +158,47 @@ test('FioDataStore -  fetchOneNew, updateStatus', async () => {
 
   mc.close();
 });
+
+
+
+test('FioDataStore -  multi ds, cross isolation', async () => {
+  const muri = await mongod.getConnectionString();
+  const mc = await createMongooseConnection(muri);
+  const fds1 = new FioDataStore(mc, 'a1');
+  const fds2 = new FioDataStore(mc, 'a2');
+
+// start empty
+  expect(await fds1.fetchOneNewTransaction()).toBeNull();
+  expect(await fds2.fetchOneNewTransaction()).toBeNull();
+
+
+  // tr into a1, not readable from a2
+  const ltr = await fds1.storeTransactionRecord({
+    ps: 'NEW',
+    fioId: 3,
+    fioAccountId: 'a1',
+    date: new Date('2019-10-10'),
+    amount: 100,
+    currency: 'CZK',
+    type: FioTransactionType.IN,
+  } as IFioBankTransaction);
+
+  expect(await fds1.fetchOneNewTransaction()).not.toBeNull();
+  expect(await fds2.fetchOneNewTransaction()).toBeNull();
+
+  const ltr2 = await fds2.storeTransactionRecord({
+    ps: 'NEW',
+    fioId: 3,
+    fioAccountId: 'a2',
+    date: new Date('2019-10-10'),
+    amount: 100,
+    currency: 'CZK',
+    type: FioTransactionType.IN,
+  } as IFioBankTransaction);
+
+  expect(await fds1.fetchOneNewTransaction()).toMatchObject({fioAccountId:'a1'});
+  expect(await fds2.fetchOneNewTransaction()).toMatchObject({fioAccountId:'a2'});
+
+
+  mc.close();
+});
