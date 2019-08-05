@@ -1,10 +1,15 @@
+import * as fs from 'fs';
 import { ExecutionResult, graphql, GraphQLObjectType, GraphQLSchema, printSchema } from 'graphql';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import * as mongoose from 'mongoose';
+import * as pdfmake from 'pdfmake/build/pdfmake';
+import * as vfs_fonts from 'pdfmake/build/vfs_fonts';
 import { FioDataStore, FioReader, FioSyncer } from './index';
 import { GraphQLInvoiceQueryType, IInvoice, IInvoiceQueryContext, InvoiceResolver } from './invoice';
 // tslint:disable-next-line:no-var-requires
 require('dotenv').config();
+
+
 
 const mongod = new MongoMemoryServer({ debug: false, autoStart: false });
 
@@ -77,81 +82,55 @@ connectTestMongoDB().then(async mc => {
 
 // const keys = Object.keys(FioTransactionProcessingStatus).filter(k => typeof FioTransactionProcessingStatus[k as any] === "number");
 // console.log(keys);
+//
 
-const s = new GraphQLSchema({
-  query: new GraphQLObjectType({
-    name: 'Query',
-    fields: () => ({
-      invoice: {
-        type: GraphQLInvoiceQueryType,
-        resolve: () => ({}),
-      },
-    }),
-  }),
+
+// PDFMAKE TEST
+const docDefinition = {
+	content: [
+		'Příliš žluťoučký kůň úpěl ďábelské ódy',
+	]
+};
+const pdf = pdfmake.createPdf(docDefinition,null,pdfmake.fonts,vfs_fonts.pdfMake.vfs);
+pdf.getBuffer((result,pages)=>{
+ console.log(pages);
+ const f=fs.createWriteStream("test.pdf");
+ f.write(result);
+ f.end();
+})
+// END OF PDFMAKE TEST
+
+
+
+// PDFKIT TEST
+// tslint:disable-next-line:no-var-requires
+import * as pdfkit from 'pdfkit';
+// tslint:disable-next-line:no-var-requires
+const MemoryStream = require('memory-stream');
+const doc = new pdfkit({
+  size: 'A4',
 });
-const query = `
-    query Q {
-      invoice {
-        a:byKey(key:"xxx") {
-          student_key
-          s3key
-          __typename
-        }
-        b:byKey(key:"xxyx") {
-          student_key
-          s3key
-          __typename
-        }
-        all {
-          student_key
-          __typename
-        }
-        __typename
-      }
-    }
-  `;
 
-// console.log(s.toConfig());
-console.log(printSchema(s));
-
-interface IContext extends IInvoiceQueryContext {
-  extra: string;
-}
-
-startLocalMongoDB().then(async mc => {
-  const invoiceResolver = new InvoiceResolver(mc);
-
-  const n = await invoiceResolver.create({
-    student_key: 'ssk',
-    no: 'no1',
-    s3key: null,
-    duplicate: false,
-    amount: 123,
-    description: 'popiska',
-    sale_date: new Date(),
-    issue_date: new Date(),
-  });
-
-  const list = await invoiceResolver.getAll();
-  console.log(list);
-
-  const ctx: IContext = {
-    extra: 'extra',
-    invoiceResolver,
-  };
-  /*
-  const result = await graphql<{invoice:{a:IInvoice,b:IInvoice}}>(s, query, {}, ctx);
-  console.log(result.data);
-  if (result.data) {
-    console.log(result.data.invoice.a)
-  } 
-  if (result.errors) {
-    console.error(result.errors);
-  }
-
-//  const up = await ctx.invoiceResolver.updateOneById("1",{student_key:"1",_id:"x", s3key:null});
-*/
-  mc.close();
-  mongod.stop();
-  return 'ok';
+const ws = new MemoryStream();
+ws.on('finish', ()=>{
+  console.log(ws.toBuffer());
 });
+doc.pipe(ws);
+
+
+doc.fillColor('green')// .font(fonts.Roboto.normal)
+.fontSize(25)
+.text('X žluťoučký kůň...',100,100,{width:150,height:20});
+
+doc.image("./public/images/image.png",0,0,{height:50});
+
+// drawQr(doc,50,100,50,"bbbbbbbbb3248-32ksfjkadshfkasfdkjasfjkhsakfhsdkfjhsdkfhdfkjashdkf");
+
+doc.flushPages();
+doc.end();
+
+// END OF PDFKIT TEST
+
+// var f = fs.createWriteStream(filename);
+// f.write(data);
+// f.end();
