@@ -58,6 +58,7 @@ export class FioSyncer {
     if (lastId === null && lastTr === null) {
       const rlastId = await this.reader.getDayLastId(fromDay);
       if (rlastId == null) {
+        await this.logRaw(JSON.stringify({ method: 'recoverSync', msg: "can't recover - no last transaction" }));
         return false;
       }
       return this.reader.setLastId(rlastId);

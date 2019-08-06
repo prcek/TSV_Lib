@@ -36,7 +36,7 @@ test('FioCfg - read env', () => {
 
   cfg3.addFio('a4', 't4', 'ab');
   const fa = cfg3.getFirmAccounts();
-  console.log(fa);
+  // console.log(fa);
   expect(fa).toHaveProperty('sro', ['a1']);
   expect(fa).toHaveProperty('lb', ['a2']);
   expect(fa).toHaveProperty('ab', ['a3', 'a4']);

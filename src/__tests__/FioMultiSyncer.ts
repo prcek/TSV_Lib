@@ -92,7 +92,7 @@ test('FioMultiSync  manual setup', async () => {
   r2.checkToken.mockResolvedValue(true);
 
   expect(await ms._initOne(syncer2, 's2')).toBe(true);
-  console.log('=======');
+  // console.log('=======');
   expect(await ms.init()).toBe(true);
   expect(await ms.syncLast()).toBe(false); // syncer2  failed
 

@@ -50,42 +50,44 @@ export interface IFioBankSyncInfo {
 export interface IFioBankTransactionModel extends mongoose.Document, IFioBankTransaction {}
 export interface IFioBankSyncInfoModel extends mongoose.Document, IFioBankSyncInfo {}
 
+export const FioBankTranscationSchema = new mongoose.Schema(
+  {
+    ps: {
+      type: String,
+      required: true,
+      enum: Object.keys(FioTransactionProcessingStatus),
+    },
+    psRef: String,
+    fioId: Number,
+    fioAccountId: String,
+    date: Date,
+    currency: String,
+    amount: Number,
+    type: {
+      type: String,
+      required: true,
+      enum: Object.keys(FioTransactionType),
+    },
+    fAccountId: String,
+    fBankId: String,
+    fAccountName: String,
+    fBankName: String,
+    ks: String,
+    vs: String,
+    ss: String,
+    userRef: String,
+    userMsg: String,
+    comment: String,
+    rawData: String,
+  },
+  { timestamps: true },
+).index({ fioId: 1, fioAccountId: 1 }, { unique: true });
+
+
 export class FioDataStore {
   private mongooseConnection: mongoose.Connection;
   private fioBankTransactionModel: mongoose.Model<IFioBankTransactionModel>;
-  private fioBankTranscationSchema = new mongoose.Schema(
-    {
-      ps: {
-        type: String,
-        required: true,
-        enum: Object.keys(FioTransactionProcessingStatus),
-      },
-      psRef: String,
-      fioId: Number,
-      fioAccountId: String,
-      date: Date,
-      currency: String,
-      amount: Number,
-      type: {
-        type: String,
-        required: true,
-        enum: Object.keys(FioTransactionType),
-      },
-      fAccountId: String,
-      fBankId: String,
-      fAccountName: String,
-      fBankName: String,
-      ks: String,
-      vs: String,
-      ss: String,
-      userRef: String,
-      userMsg: String,
-      comment: String,
-      rawData: String,
-    },
-    { timestamps: true },
-  ).index({ fioId: 1, fioAccountId: 1 }, { unique: true });
-
+  private fioBankTranscationSchema = FioBankTranscationSchema;
   private fioBankSyncInfoModel: mongoose.Model<IFioBankSyncInfoModel>;
   private fioBankSyncInfoSchema = new mongoose.Schema(
     {
