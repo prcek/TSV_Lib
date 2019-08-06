@@ -77,7 +77,7 @@ test('My FioReader - getLastId', async () => {
   expect(frr).toBe(18247668131);
   expect(fetchMock.mock.calls.length).toBe(1);
   expect(fetchMock.mock.calls[0][0]).toBe(
-    'https://www.fio.cz/ib_api/rest/periods/test_token/2019-01-24/2019-01-31/transactions.json',
+    'https://www.fio.cz/ib_api/rest/periods/test_token/2019-01-01/2019-01-31/transactions.json',
   );
 
   fetchMock.mockResponseOnce(
@@ -112,7 +112,7 @@ test('My FioReader - getLastId', async () => {
   expect(frr2).toBe(null);
   expect(fetchMock.mock.calls.length).toBe(2);
   expect(fetchMock.mock.calls[1][0]).toBe(
-    'https://www.fio.cz/ib_api/rest/periods/test_token/2019-07-24/2019-07-31/transactions.json',
+    'https://www.fio.cz/ib_api/rest/periods/test_token/2019-07-01/2019-07-31/transactions.json',
   );
 });
 

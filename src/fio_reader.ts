@@ -137,7 +137,7 @@ export class FioReader {
   }
 
   public async getDayLastId(checkDate: Date): Promise<number | null> {
-    const fromD = new Date(checkDate.getTime() - 3600000 * 24 * 7); // 7 days
+    const fromD = new Date(checkDate.getTime() - 3600000 * 24 * 30); // 30 days
 
     const fior = await this.getPeriods(fromD, checkDate);
     if (fior) {
