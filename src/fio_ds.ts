@@ -83,7 +83,6 @@ export const FioBankTranscationSchema = new mongoose.Schema(
   { timestamps: true },
 ).index({ fioId: 1, fioAccountId: 1 }, { unique: true });
 
-
 export class FioDataStore {
   private mongooseConnection: mongoose.Connection;
   private fioBankTransactionModel: mongoose.Model<IFioBankTransactionModel>;
