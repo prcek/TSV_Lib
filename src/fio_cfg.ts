@@ -42,6 +42,14 @@ export class FioCfg {
       return acc;
     }, {});
   }
+
+  public getAllAccounts(): string[] {
+    return this.list.reduce<string[]>((acc, r) => {
+        acc.push(r.fioAccountId);
+      return acc;
+    }, []);
+  }
+
   public anyFio(): boolean {
     return this.list.length > 0;
   }
