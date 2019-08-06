@@ -101,7 +101,7 @@ pdf.getBuffer((result,pages)=>{
 // END OF PDFMAKE TEST
 
 
-
+/*
 // PDFKIT TEST
 // tslint:disable-next-line:no-var-requires
 import * as pdfkit from 'pdfkit';
@@ -128,9 +128,11 @@ doc.image("./public/images/image.png",0,0,{height:50});
 
 doc.flushPages();
 doc.end();
-
+*/
 // END OF PDFKIT TEST
 
 // var f = fs.createWriteStream(filename);
 // f.write(data);
 // f.end();
+
+

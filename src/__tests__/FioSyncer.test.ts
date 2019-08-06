@@ -26,7 +26,7 @@ test('My FioSyncer - first start', async () => {
   const muri = await mongod.getConnectionString();
   const mc = await createMongooseConnection(muri);
   const fds = new FioDataStore(mc, 'a1');
-  const frd = new FioReader('test_token');
+  const frd = new FioReader('test_token',tdFioAccountId);
   const fs = new FioSyncer(frd, fds);
 
   expect(await fs.isFirstSync()).toBe(true);
@@ -121,6 +121,8 @@ test('My FioSyncer - first start', async () => {
   await fds.setLastId(1234);
   expect(await fs.recoverSync(new Date('2019-01-31'))).toBe(false);
   expect(fetchMock.mock.calls.length).toBe(0);
+
+  mc.close();
 });
 
 test('My FioSyncer - sync day', async () => {
@@ -130,7 +132,7 @@ test('My FioSyncer - sync day', async () => {
   const muri = await mongod.getConnectionString();
   const mc = await createMongooseConnection(muri);
   const fds = new FioDataStore(mc, tdFioAccountId);
-  const frd = new FioReader('test_token');
+  const frd = new FioReader('test_token',tdFioAccountId);
   const fs = new FioSyncer(frd, fds);
 
   const res = await fs.syncDate(new Date('2019-07-08'));
@@ -154,7 +156,7 @@ test('My FioSyncer - start (recovery A), sync last - one fetch, 2 empty', async 
   const muri = await mongod.getConnectionString();
   const mc = await createMongooseConnection(muri);
   const fds = new FioDataStore(mc, tdFioAccountId);
-  const frd = new FioReader('test_token');
+  const frd = new FioReader('test_token',tdFioAccountId);
   frd.test_disableThrottling();
 
   const fs = new FioSyncer(frd, fds);
@@ -185,7 +187,7 @@ test('My FioSyncer - transaction types', async () => {
   const muri = await mongod.getConnectionString();
   const mc = await createMongooseConnection(muri);
   const fds = new FioDataStore(mc, tdFioAccountId);
-  const frd = new FioReader('test_token');
+  const frd = new FioReader('test_token',tdFioAccountId);
   const fs = new FioSyncer(frd, fds);
 
   expect(await fs.syncLast()).toBe(true);
@@ -202,7 +204,7 @@ test('My FioSyncer - logger', async () => {
   const muri = await mongod.getConnectionString();
   const mc = await createMongooseConnection(muri);
   const fds = new FioDataStore(mc, tdFioAccountId);
-  const frd = new FioReader('test_token');
+  const frd = new FioReader('test_token',tdFioAccountId);
   const logger = {
     logRaw: jest.fn(),
     logTransaction: jest.fn(),

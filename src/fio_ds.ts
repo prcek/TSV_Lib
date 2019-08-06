@@ -111,6 +111,9 @@ export class FioDataStore {
       'fiobanksyncinfo',
     );
   }
+  public getFioAccountId(): string {
+    return this.fioAccountId;
+  }
   public async getMongoVersion(): Promise<string> {
     const info = await this.mongooseConnection.db.admin().buildInfo();
     // console.log(`mongodb version ${info.version}`);

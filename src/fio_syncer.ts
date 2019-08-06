@@ -24,6 +24,16 @@ export class FioSyncer {
       this.logTransaction = logger.logTransaction;
     }
   }
+  public getReader(): FioReader {
+    return this.reader;
+  }
+  public getStore(): FioDataStore {
+    return this.store;
+  }
+
+  public async checkToken(): Promise<boolean> {
+    return this.reader.checkToken();
+  }
 
   //  public async isFirstStart(): Promise<boolean> {
   //

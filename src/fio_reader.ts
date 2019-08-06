@@ -80,7 +80,7 @@ export interface IFioInfo {
 
 export class FioReader {
   private apiUrl = 'https://www.fio.cz/ib_api/rest/';
-  private apiToken: string;
+ 
   private thdisabled = false;
   private thfetchInternal = pThrottle(
     (url: string) => {
@@ -90,12 +90,28 @@ export class FioReader {
     30000,
   );
 
-  constructor(token: string) {
-    this.apiToken = token;
+  constructor(private apiToken: string, private fioAccountId: string) {
+    
   }
 
   public test_disableThrottling(): void {
     this.thdisabled = true;
+  }
+
+  public async checkToken(): Promise<boolean> {
+    const now = new Date();
+    const tm = new Promise((resolve, reject)=>{
+      setTimeout(resolve, 5000, null);
+    });
+
+    try {
+      const r = await Promise.race([this.getPeriods(now,now), tm]);
+      return r!==null;
+    } catch(err) {
+      return false;
+    }
+
+    return false;
   }
 
   public async getLast(): Promise<IFioRecord | null> {
@@ -103,7 +119,12 @@ export class FioReader {
       const r = await this.thfetch(this.apiUrl + 'last/' + this.apiToken + '/transactions.json');
       if (r.status === 200) {
         const js = await r.json();
-        return this.raw2fr(js);
+        const trs = this.raw2fr(js);
+        if (trs.accountStatement.info.accountId !== this.fioAccountId) {
+          // console.log("JSON:",js);
+          throw Error("FioReader.getLast wrong fioAccountId");
+        }
+        return trs;
       }
       if (r.status === 409) {
         return null;
@@ -148,7 +169,12 @@ export class FioReader {
 
       if (r.status === 200) {
         const js = await r.json();
-        return this.raw2fr(js);
+        const trs = this.raw2fr(js);
+        if (trs.accountStatement.info.accountId !== this.fioAccountId) {
+          console.log("JSON:",js);
+          throw Error("FioReader.getPeriods wrong fioAccountId");
+        }
+        return trs;
       }
 
       if (r.status === 409) {
