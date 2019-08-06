@@ -41,9 +41,8 @@ test('FioCfg - read env', () => {
   expect(fa).toHaveProperty('lb', ['a2']);
   expect(fa).toHaveProperty('ab', ['a3', 'a4']);
 
-
   const aa = cfg3.getAllAccounts();
-  expect(aa).toEqual(['a1','a2','a3','a4']);
+  expect(aa).toEqual(['a1', 'a2', 'a3', 'a4']);
 
   process.env.BANK_FIO_ON_LB = 'false';
   const cfg4 = createFioCfgFromEnv();

@@ -45,7 +45,7 @@ export class FioCfg {
 
   public getAllAccounts(): string[] {
     return this.list.reduce<string[]>((acc, r) => {
-        acc.push(r.fioAccountId);
+      acc.push(r.fioAccountId);
       return acc;
     }, []);
   }
