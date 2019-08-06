@@ -66,16 +66,19 @@ export class FioSyncer {
 
     // normal recovery
     if (lastId !== null && lastTr !== null && lastTr.fioId === lastId) {
+      await this.logRaw(JSON.stringify({ method: 'recoverSync', msg: "normal recovery" }));
       return this.reader.setLastId(lastId);
     }
 
     // recovery (lastId missing)
     if (lastId === null && lastTr != null && lastTr.fioId) {
+      await this.logRaw(JSON.stringify({ method: 'recoverSync', msg: "normal recovery from lastTr" }));
       return this.reader.setLastId(lastTr.fioId);
     }
 
     // recovery (lasttr missing)
     if (lastId !== null && lastTr === null) {
+      await this.logRaw(JSON.stringify({ method: 'recoverSync', msg: "normal recovery from checkPoint" }));
       return this.reader.setLastId(lastId);
     }
     await this.logRaw(JSON.stringify({ method: 'recoverSync', msg: "can't recover", vars: [lastId, lastTr] }));
