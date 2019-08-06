@@ -9,8 +9,6 @@ import { GraphQLInvoiceQueryType, IInvoice, IInvoiceQueryContext, InvoiceResolve
 // tslint:disable-next-line:no-var-requires
 require('dotenv').config();
 
-
-
 const mongod = new MongoMemoryServer({ debug: false, autoStart: false });
 
 async function startLocalMongoDB(): Promise<mongoose.Connection> {
@@ -84,22 +82,18 @@ connectTestMongoDB().then(async mc => {
 // console.log(keys);
 //
 
-
 // PDFMAKE TEST
 const docDefinition = {
-	content: [
-		'Příliš žluťoučký kůň úpěl ďábelské ódy',
-	]
+  content: ['Příliš žluťoučký kůň úpěl ďábelské ódy'],
 };
-const pdf = pdfmake.createPdf(docDefinition,null,pdfmake.fonts,vfs_fonts.pdfMake.vfs);
-pdf.getBuffer((result,pages)=>{
- console.log(pages);
- const f=fs.createWriteStream("test.pdf");
- f.write(result);
- f.end();
-})
+const pdf = pdfmake.createPdf(docDefinition, null, pdfmake.fonts, vfs_fonts.pdfMake.vfs);
+pdf.getBuffer((result, pages) => {
+  console.log(pages);
+  const f = fs.createWriteStream('test.pdf');
+  f.write(result);
+  f.end();
+});
 // END OF PDFMAKE TEST
-
 
 /*
 // PDFKIT TEST
@@ -134,5 +128,3 @@ doc.end();
 // var f = fs.createWriteStream(filename);
 // f.write(data);
 // f.end();
-
-
