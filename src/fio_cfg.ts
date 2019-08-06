@@ -32,15 +32,15 @@ export class FioCfg {
     });
   }
 
-  public getFirmAccounts(): Record<string,string[]> {
-      return this.list.reduce<Record<string,string[]>>((acc,r)=>{
-        if (acc[r.firmKey] == null) {
-            acc[r.firmKey] = [r.fioAccountId];
-        } else {
-            acc[r.firmKey].push(r.fioAccountId);
-        }
-        return acc;
-      },{});
+  public getFirmAccounts(): Record<string, string[]> {
+    return this.list.reduce<Record<string, string[]>>((acc, r) => {
+      if (acc[r.firmKey] == null) {
+        acc[r.firmKey] = [r.fioAccountId];
+      } else {
+        acc[r.firmKey].push(r.fioAccountId);
+      }
+      return acc;
+    }, {});
   }
   public anyFio(): boolean {
     return this.list.length > 0;

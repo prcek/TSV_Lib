@@ -34,14 +34,12 @@ test('FioCfg - read env', () => {
   expect(cfg3.anyFio()).toBe(true);
   expect(cfg3.getList()).toHaveLength(3);
 
-
-  cfg3.addFio('a4','t4','ab'); 
+  cfg3.addFio('a4', 't4', 'ab');
   const fa = cfg3.getFirmAccounts();
   console.log(fa);
-  expect(fa).toHaveProperty('sro',['a1']);
-  expect(fa).toHaveProperty('lb',['a2']);
-  expect(fa).toHaveProperty('ab',['a3','a4']);
-  
+  expect(fa).toHaveProperty('sro', ['a1']);
+  expect(fa).toHaveProperty('lb', ['a2']);
+  expect(fa).toHaveProperty('ab', ['a3', 'a4']);
 
   process.env.BANK_FIO_ON_LB = 'false';
   const cfg4 = createFioCfgFromEnv();
@@ -52,11 +50,4 @@ test('FioCfg - read env', () => {
   process.env.BANK_FIO_ON_SRO = 'false';
   const cfg5 = createFioCfgFromEnv();
   expect(cfg5.anyFio()).toBe(false);
-
-
-
-
-  
-
-
 });
