@@ -1,19 +1,19 @@
 import { FetchMock } from 'jest-fetch-mock';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import * as mongoose from 'mongoose';
-import { FioDataStore, FioReader, FioSyncer } from '../index';
-// tslint:disable-next-line:ordered-imports
-import { IFioBankTransaction, FioTransactionProcessingStatus, FioTransactionType } from '../fio_ds';
 // tslint:disable-next-line:ordered-imports
 import {
-  tdJsonDay1,
   tdFioAccountId,
   tdJsonDay0,
+  tdJsonDay1,
   tdJsonDayEmpty,
   tdJsonTrTypes,
   tdJsonTrTypesNull,
 } from '../__test_data__/data';
+// tslint:disable-next-line:ordered-imports
+import { FioTransactionProcessingStatus, FioTransactionType, IFioBankTransaction } from '../fio_ds';
 import { IFioSyncerLogger } from '../fio_syncer';
+import { FioDataStore, FioReader, FioSyncer } from '../index';
 
 import { createMongooseConnection, mongod } from '../jestutils';
 
