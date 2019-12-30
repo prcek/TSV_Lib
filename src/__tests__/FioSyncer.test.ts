@@ -5,7 +5,14 @@ import { FioDataStore, FioReader, FioSyncer } from '../index';
 // tslint:disable-next-line:ordered-imports
 import { IFioBankTransaction, FioTransactionProcessingStatus, FioTransactionType } from '../fio_ds';
 // tslint:disable-next-line:ordered-imports
-import { tdJsonDay1, tdFioAccountId, tdJsonDay0, tdJsonDayEmpty, tdJsonTrTypes, tdJsonTrTypesNull } from '../__test_data__/data';
+import {
+  tdJsonDay1,
+  tdFioAccountId,
+  tdJsonDay0,
+  tdJsonDayEmpty,
+  tdJsonTrTypes,
+  tdJsonTrTypesNull,
+} from '../__test_data__/data';
 import { IFioSyncerLogger } from '../fio_syncer';
 
 import { createMongooseConnection, mongod } from '../jestutils';
@@ -214,7 +221,6 @@ test('My FioSyncer - transaction types - null problem', async () => {
 
   mc.close();
 });
-
 
 test('My FioSyncer - logger', async () => {
   fetchMock.resetMocks();

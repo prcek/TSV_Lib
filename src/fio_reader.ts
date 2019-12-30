@@ -219,7 +219,7 @@ export class FioReader {
       date: rt.column0.value,
       amount: rt.column1.value,
       currency: rt.column14.value,
-      type: rt.column8? rt.column8.value : '<null>',
+      type: rt.column8 ? rt.column8.value : '<null>',
 
       // optional fields:
       fAccountId: rt.column2 ? rt.column2.value : null,

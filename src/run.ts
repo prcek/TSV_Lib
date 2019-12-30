@@ -66,9 +66,7 @@ async function main() {
   console.log('xx');
 }
 
-
-main().then(console.log)
-
+main().then(console.log);
 
 /*
 startLocalMongoDB().then(async mc => {
