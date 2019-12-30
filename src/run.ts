@@ -45,13 +45,31 @@ async function connectTestMongoDB(): Promise<mongoose.Connection> {
   console.log(`Mongoose successfully connected to ${mongoUri}`);
   return mongooseConnection;
 }
-/* 
-const fr = new FioReader(process.env.FIO_TOKEN || 'missing');
+/*
+const fr = new FioReader(process.env.FIO_TOKEN || 'missing', 'ac1');
 
 fr.getPeriods(new Date(), new Date()).then(frr => {
-  console.log(frr.accountStatement.transactionList.transaction);
+  if (frr) {
+    console.log('fxff');
+    console.log(frr.accountStatement.transactionList.transaction);
+  } else {
+    console.log('null')
+  }
+  
 });
 */
+console.log('xxx');
+
+async function main() {
+  const fr = new FioReader(process.env.FIO_TOKEN || 'missing', 'ac1');
+  const frr = await fr.getPeriods(new Date(), new Date());
+  console.log('xx');
+}
+
+
+main().then(console.log)
+
+
 /*
 startLocalMongoDB().then(async mc => {
   const fds = new FioDataStore(mc);
@@ -82,6 +100,7 @@ connectTestMongoDB().then(async mc => {
 // console.log(keys);
 //
 
+/*
 // PDFMAKE TEST
 const docDefinition = {
   content: ['Příliš žluťoučký kůň úpěl ďábelské ódy'],
@@ -94,6 +113,7 @@ pdf.getBuffer((result, pages) => {
   f.end();
 });
 // END OF PDFMAKE TEST
+*/
 
 /*
 // PDFKIT TEST

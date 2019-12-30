@@ -5,7 +5,7 @@ import { FioDataStore, FioReader, FioSyncer } from '../index';
 // tslint:disable-next-line:ordered-imports
 import { IFioBankTransaction, FioTransactionProcessingStatus, FioTransactionType } from '../fio_ds';
 // tslint:disable-next-line:ordered-imports
-import { tdJsonDay1, tdFioAccountId, tdJsonDay0, tdJsonDayEmpty, tdJsonTrTypes } from '../__test_data__/data';
+import { tdJsonDay1, tdFioAccountId, tdJsonDay0, tdJsonDayEmpty, tdJsonTrTypes, tdJsonTrTypesNull } from '../__test_data__/data';
 import { IFioSyncerLogger } from '../fio_syncer';
 
 import { createMongooseConnection, mongod } from '../jestutils';
@@ -197,6 +197,24 @@ test('My FioSyncer - transaction types', async () => {
 
   mc.close();
 });
+
+test('My FioSyncer - transaction types - null problem', async () => {
+  fetchMock.resetMocks();
+  fetchMock.mockResponseOnce(tdJsonTrTypesNull);
+  const muri = await mongod.getConnectionString();
+  const mc = await createMongooseConnection(muri);
+  const fds = new FioDataStore(mc, tdFioAccountId);
+  const frd = new FioReader('test_token', tdFioAccountId);
+  const fs = new FioSyncer(frd, fds);
+
+  expect(await fs.syncLast()).toBe(true);
+  const atrs = await fds.fetchAllTransactions(); // last as first
+  expect(atrs.length).toBe(1);
+  expect(atrs[0].type).toBe(FioTransactionType.UNKNOWN);
+
+  mc.close();
+});
+
 
 test('My FioSyncer - logger', async () => {
   fetchMock.resetMocks();
