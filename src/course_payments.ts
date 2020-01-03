@@ -49,6 +49,7 @@ export interface IStudentPayments {
 }
 
 export interface ICoursePaymentsReport {
+  date: Date | null,
   students: Record<string, IStudentPayments>;
   studentsByStatus: Record<EStudentStatusType, Record<string, IStudentPayments>>;
   amount: number;
@@ -228,7 +229,7 @@ export class CoursePaymentsStore {
     if (ci) {
       const studentKeys = R.map(s => s.studentKey, ci.students);
       const sps = await this.getStudentsPayments(studentKeys);
-      return this.cpayments2cpr(ci, sps);
+      return this.cpayments2cpr(ci, sps, null);
     }
     return null;
   }
@@ -238,12 +239,12 @@ export class CoursePaymentsStore {
     if (ci) {
       const studentKeys = R.map(s => s.studentKey, ci.students);
       const sps = await this.getStudentsPaymentsUpToDate(studentKeys, toDate);
-      return this.cpayments2cpr(ci, sps);
+      return this.cpayments2cpr(ci, sps, toDate);
     }
     return null;
   }
 
-  private cpayments2cpr(ci: ICourseInfo, sps: Record<string, IStudentPayments>): ICoursePaymentsReport {
+  private cpayments2cpr(ci: ICourseInfo, sps: Record<string, IStudentPayments>, date: Date | null): ICoursePaymentsReport {
     const ssg = R.groupBy(s => s.status, ci.students);
     const ssgkeys = R.keys(ssg);
 
@@ -280,7 +281,7 @@ export class CoursePaymentsStore {
 
     const amount = R.reduce<IStudentPayments, number>((a, s) => a + s.amount, 0, R.values(sps));
     const count = R.keys(sps).length;
-    return { amount, count, students: sps, studentsByStatus: sbs, amountByStatus: abs, countByStatus: cbs };
+    return { date, amount, count, students: sps, studentsByStatus: sbs, amountByStatus: abs, countByStatus: cbs };
   }
 
   private payments2sp(payments: ICoursePayment[], keys: string[]): Record<string, IStudentPayments> {

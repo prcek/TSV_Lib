@@ -264,15 +264,17 @@ test.only('CoursePayments - get multi payments', async () => {
     expect(ps3.studentsByStatus.k).toMatchObject({ st4: expect.any(Object) });
     expect(ps3.countByStatus).toMatchObject({ s: 0, n: 2, e: 0, k: 1 });
     expect(ps3.count).toBe(3);
+    expect(ps3.date).toBe(null);
   }
 
-  const ps4 = await cps.getCoursePaymentsUpToDate('c1', new Date('1996-01-01T00:00'));
+  const ps4 = await cps.getCoursePaymentsUpToDate('c1', new Date('1996-01-01T00:00:00.000Z'));
   expect(ps4).not.toBeNull();
   if (ps4) {
     expect(ps4).toMatchObject({ amount: 3200, students: expect.any(Object) });
     expect(ps4.amountByStatus).toMatchObject({ s: 0, n: 3200, e: 0, k: 0 });
     expect(ps4.countByStatus).toMatchObject({ s: 0, n: 2, e: 0, k: 1 });
     expect(ps4.count).toBe(3);
+    expect(ps4.date).toEqual(new Date('1996-01-01T00:00:00.000Z'));
   }
 
   mc.close();
