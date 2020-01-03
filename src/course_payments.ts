@@ -4,10 +4,10 @@ import * as R from 'ramda';
 import { FioTransactionProcessingStatus, FioTransactionType, IFioBankTransaction } from './fio_ds';
 
 export enum EStudentStatusType {
-    SPARE = 's',
-    NEW = 'n',
-    ENROLL = 'e',
-    KICK = 'k'
+  SPARE = 's',
+  NEW = 'n',
+  ENROLL = 'e',
+  KICK = 'k',
 }
 
 export interface IStudentInfo {
@@ -46,16 +46,16 @@ export interface ICoursePayment {
 export interface IStudentPayments {
   payments: ICoursePayment[];
   amount: number;
-} 
+}
 
 export interface ICoursePaymentsReport {
-  students: Record<string,IStudentPayments>;
-  studentsByStatus: Record<EStudentStatusType,Record<string,IStudentPayments>>;
+  students: Record<string, IStudentPayments>;
+  studentsByStatus: Record<EStudentStatusType, Record<string, IStudentPayments>>;
   amount: number;
-  amountByStatus: Record<EStudentStatusType,number>;
+  amountByStatus: Record<EStudentStatusType, number>;
   count: number;
-  countByStatus: Record<EStudentStatusType,number>;
-} 
+  countByStatus: Record<EStudentStatusType, number>;
+}
 
 export interface ICoursePaymentModel extends mongoose.Document, ICoursePayment {}
 
@@ -208,91 +208,93 @@ export class CoursePaymentsStore {
     return paid;
   }
 
-  public async getStudentsPayments(studentKeys: string[]): Promise<Record<string,IStudentPayments>> {
-    const payments = await this.coursePaymentModel.find({ studentKey: {$in:studentKeys} }).sort({ date: 1 });
-    return this.payments2sp(payments,studentKeys);
+  public async getStudentsPayments(studentKeys: string[]): Promise<Record<string, IStudentPayments>> {
+    const payments = await this.coursePaymentModel.find({ studentKey: { $in: studentKeys } }).sort({ date: 1 });
+    return this.payments2sp(payments, studentKeys);
   }
 
-
-  public async getStudentsPaymentsUpToDate(studentKeys: string[], toDate: Date): Promise<Record<string,IStudentPayments>> {
-    const payments = await this.coursePaymentModel.find({ studentKey: {$in:studentKeys}, date: {$lt: toDate} }).sort({ date: 1 });
-    return this.payments2sp(payments,studentKeys);
+  public async getStudentsPaymentsUpToDate(
+    studentKeys: string[],
+    toDate: Date,
+  ): Promise<Record<string, IStudentPayments>> {
+    const payments = await this.coursePaymentModel
+      .find({ studentKey: { $in: studentKeys }, date: { $lt: toDate } })
+      .sort({ date: 1 });
+    return this.payments2sp(payments, studentKeys);
   }
 
   public async getCoursePayments(courseKey: string): Promise<ICoursePaymentsReport | null> {
     const ci = await this.lookupCourseInfo(courseKey);
     if (ci) {
-      const studentKeys = R.map(s=>s.studentKey,ci.students);
+      const studentKeys = R.map(s => s.studentKey, ci.students);
       const sps = await this.getStudentsPayments(studentKeys);
       return this.cpayments2cpr(ci, sps);
     }
     return null;
   }
 
-
-  public async getCoursePaymentsUpToDate(courseKey: string, toDate: Date): Promise<ICoursePaymentsReport|null> {
+  public async getCoursePaymentsUpToDate(courseKey: string, toDate: Date): Promise<ICoursePaymentsReport | null> {
     const ci = await this.lookupCourseInfo(courseKey);
     if (ci) {
-      const studentKeys = R.map(s=>s.studentKey,ci.students);
+      const studentKeys = R.map(s => s.studentKey, ci.students);
       const sps = await this.getStudentsPaymentsUpToDate(studentKeys, toDate);
       return this.cpayments2cpr(ci, sps);
     }
     return null;
   }
-  
 
-  private cpayments2cpr(ci: ICourseInfo, sps: Record<string,IStudentPayments>):ICoursePaymentsReport {
-    const ssg = R.groupBy(s=>s.status,ci.students);
+  private cpayments2cpr(ci: ICourseInfo, sps: Record<string, IStudentPayments>): ICoursePaymentsReport {
+    const ssg = R.groupBy(s => s.status, ci.students);
     const ssgkeys = R.keys(ssg);
 
-    const sbs: Record<EStudentStatusType,Record<string,IStudentPayments>> = {
+    const sbs: Record<EStudentStatusType, Record<string, IStudentPayments>> = {
       s: {},
       n: {},
       e: {},
       k: {},
-    }
+    };
 
-    const abs: Record<EStudentStatusType,number> = {
-      s:0,
-      n:0,
-      e:0,
-      k:0,
-    }
+    const abs: Record<EStudentStatusType, number> = {
+      s: 0,
+      n: 0,
+      e: 0,
+      k: 0,
+    };
 
-    const cbs: Record<EStudentStatusType,number> = {
-      s:0,
-      n:0,
-      e:0,
-      k:0,
-    }
+    const cbs: Record<EStudentStatusType, number> = {
+      s: 0,
+      n: 0,
+      e: 0,
+      k: 0,
+    };
 
-    for (const  key of ssgkeys) {
-      const sks = ci.students.filter(s=>s.status === key).map(s=>s.studentKey);
-      const sbsx = R.pick(sks,sps);
+    for (const key of ssgkeys) {
+      const sks = ci.students.filter(s => s.status === key).map(s => s.studentKey);
+      const sbsx = R.pick(sks, sps);
       sbs[key as EStudentStatusType] = sbsx;
-      const am = R.values(sbsx).reduce((a,s)=>a+s.amount,0);
+      const am = R.values(sbsx).reduce((a, s) => a + s.amount, 0);
       abs[key as EStudentStatusType] = am;
       const cn = R.keys(sbsx).length;
       cbs[key as EStudentStatusType] = cn;
     }
-   
-    const amount = R.reduce<IStudentPayments,number>((a,s)=>a+s.amount,0,R.values(sps));
+
+    const amount = R.reduce<IStudentPayments, number>((a, s) => a + s.amount, 0, R.values(sps));
     const count = R.keys(sps).length;
-    return {amount, count, students:sps, studentsByStatus:sbs, amountByStatus:abs, countByStatus:cbs};
+    return { amount, count, students: sps, studentsByStatus: sbs, amountByStatus: abs, countByStatus: cbs };
   }
 
-  private payments2sp(payments:ICoursePayment[], keys:string[]): Record<string,IStudentPayments> {
-    const rr =  R.groupBy<ICoursePayment>(p=>p.studentKey,payments);  
-    
-    const sksm = keys.filter(k=>!(k in rr));
+  private payments2sp(payments: ICoursePayment[], keys: string[]): Record<string, IStudentPayments> {
+    const rr = R.groupBy<ICoursePayment>(p => p.studentKey, payments);
+
+    const sksm = keys.filter(k => !(k in rr));
     for (const mk of sksm) {
-        rr[mk]=[];
+      rr[mk] = [];
     }
-    
-    return R.map<Record<string,ICoursePayment[]>,Record<string,IStudentPayments>>(cp=>{
-      const am = cp.reduce((p,ccp)=>p + ccp.amount,0);
-      return { payments:cp , amount:am}
-    },rr);
+
+    return R.map<Record<string, ICoursePayment[]>, Record<string, IStudentPayments>>(cp => {
+      const am = cp.reduce((p, ccp) => p + ccp.amount, 0);
+      return { payments: cp, amount: am };
+    }, rr);
   }
 
   private lookupFirmKey(accountId: string): string | null {
