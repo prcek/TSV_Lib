@@ -145,7 +145,7 @@ test('CoursePayments - get multi payments', async () => {
 
   const rps = new ReportPayments({
     lookupCategoryInfo: lookupcategory,
-    coursePaymentsStore: cps
+    coursePaymentsStore: cps,
   });
 
   const cat1 = await lookupcategory('f1', 's1');
