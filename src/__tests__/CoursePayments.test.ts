@@ -278,12 +278,11 @@ test.only('CoursePayments - get multi payments', async () => {
     expect(ps4.date).toEqual(new Date('1996-01-01T00:00:00.000Z'));
   }
 
-
-  const ms1 = await cps.getCoursesPayments(['c1','c2']);
+  const ms1 = await cps.getCoursesPayments(['c1', 'c2']);
   expect(ms1.courses).toHaveLength(2);
   expect(ms1.sum.amount).toBe(6600);
 
-  const ms2 = await cps.getCoursesPaymentsUpToDate(['c1','c2'], new Date('1996-01-01T00:00:00.000Z'));
+  const ms2 = await cps.getCoursesPaymentsUpToDate(['c1', 'c2'], new Date('1996-01-01T00:00:00.000Z'));
   expect(ms2.courses).toHaveLength(2);
   expect(ms2.sum.amount).toBe(3200);
   expect(ms2.sum.amountByStatus.e).toBe(0);

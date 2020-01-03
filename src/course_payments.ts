@@ -255,30 +255,29 @@ export class CoursePaymentsStore {
   }
 
   public async getCoursesPayments(coursesKey: string[]): Promise<ICoursesPaymentsReport> {
-    const res:Array<ICoursePaymentsReport | null> = [];
+    const res: Array<ICoursePaymentsReport | null> = [];
     for (const courseKey of coursesKey) {
-      const r=await this.getCoursePayments(courseKey);
+      const r = await this.getCoursePayments(courseKey);
       res.push(r);
     }
-    return {courses: res, sum:this.sumPayments(res)}
+    return { courses: res, sum: this.sumPayments(res) };
   }
-
 
   public async getCoursesPaymentsUpToDate(coursesKey: string[], toDate: Date): Promise<ICoursesPaymentsReport> {
-      const res:Array<ICoursePaymentsReport | null> = [];
-      for (const courseKey of coursesKey) {
-        const r=await this.getCoursePaymentsUpToDate(courseKey, toDate);
-        res.push(r);
-      }
-      return {courses: res, sum:this.sumPayments(res)};
+    const res: Array<ICoursePaymentsReport | null> = [];
+    for (const courseKey of coursesKey) {
+      const r = await this.getCoursePaymentsUpToDate(courseKey, toDate);
+      res.push(r);
+    }
+    return { courses: res, sum: this.sumPayments(res) };
   }
-  
-  private sumPayments(a: Array<ICoursePaymentsReport | null>):ICoursePaymentsReportSum {
-    const r:ICoursePaymentsReportSum = {
+
+  private sumPayments(a: Array<ICoursePaymentsReport | null>): ICoursePaymentsReportSum {
+    const r: ICoursePaymentsReportSum = {
       amount: 0,
       amountByStatus: { s: 0, n: 0, k: 0, e: 0 },
-    }
-    for (const p of a)  {
+    };
+    for (const p of a) {
       if (p) {
         r.amount += p.amount;
         r.amountByStatus.e += p.amountByStatus.e;
@@ -332,7 +331,16 @@ export class CoursePaymentsStore {
 
     const amount = R.reduce<IStudentPayments, number>((a, s) => a + s.amount, 0, R.values(sps));
     const count = R.keys(sps).length;
-    return { courseKey, date, amount, count, students: sps, studentsByStatus: sbs, amountByStatus: abs, countByStatus: cbs };
+    return {
+      courseKey,
+      date,
+      amount,
+      count,
+      students: sps,
+      studentsByStatus: sbs,
+      amountByStatus: abs,
+      countByStatus: cbs,
+    };
   }
 
   private payments2sp(payments: ICoursePayment[], keys: string[]): Record<string, IStudentPayments> {
