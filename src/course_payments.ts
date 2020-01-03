@@ -49,7 +49,7 @@ export interface IStudentPayments {
 }
 
 export interface ICoursePaymentsReport {
-  date: Date | null,
+  date: Date | null;
   students: Record<string, IStudentPayments>;
   studentsByStatus: Record<EStudentStatusType, Record<string, IStudentPayments>>;
   amount: number;
@@ -244,7 +244,11 @@ export class CoursePaymentsStore {
     return null;
   }
 
-  private cpayments2cpr(ci: ICourseInfo, sps: Record<string, IStudentPayments>, date: Date | null): ICoursePaymentsReport {
+  private cpayments2cpr(
+    ci: ICourseInfo,
+    sps: Record<string, IStudentPayments>,
+    date: Date | null,
+  ): ICoursePaymentsReport {
     const ssg = R.groupBy(s => s.status, ci.students);
     const ssgkeys = R.keys(ssg);
 
