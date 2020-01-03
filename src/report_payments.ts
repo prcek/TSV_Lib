@@ -15,7 +15,6 @@ type TLookupCategoryInfoType = (catKey: string, seasonKey: string) => Promise<IC
 interface IReportPaymentsOptions {
   coursePaymentsStore: CoursePaymentsStore;
   lookupCategoryInfo: TLookupCategoryInfoType;
-  endDate: Date;
 }
 
 interface IReportPaymentsResult {
@@ -28,13 +27,11 @@ interface IReportPaymentsResult {
 export class ReportPayments {
   private coursePaymentsStore: CoursePaymentsStore;
   private lookupCategoryInfo: TLookupCategoryInfoType;
-  private endDate: Date;
   private cats: ICategoryInfo[];
 
   constructor(opts: IReportPaymentsOptions) {
     this.coursePaymentsStore = opts.coursePaymentsStore;
     this.lookupCategoryInfo = opts.lookupCategoryInfo;
-    this.endDate = opts.endDate;
     this.cats = [];
   }
   public async clearCategories(): Promise<boolean> {
