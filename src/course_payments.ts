@@ -49,6 +49,7 @@ export interface IStudentPayments {
 }
 
 export interface ICoursePaymentsReport {
+  courseKey: string;
   date: Date | null;
   students: Record<string, IStudentPayments>;
   studentsByStatus: Record<EStudentStatusType, Record<string, IStudentPayments>>;
@@ -58,6 +59,15 @@ export interface ICoursePaymentsReport {
   countByStatus: Record<EStudentStatusType, number>;
 }
 
+export interface ICoursePaymentsReportSum {
+  amount: number;
+  amountByStatus: Record<EStudentStatusType, number>;
+}
+
+export interface ICoursesPaymentsReport {
+  courses: Array<ICoursePaymentsReport | null>;
+  sum: ICoursePaymentsReportSum;
+}
 export interface ICoursePaymentModel extends mongoose.Document, ICoursePayment {}
 
 type TLookupStudentInfoType = (vs: string) => Promise<IStudentInfo | null>;
@@ -229,7 +239,7 @@ export class CoursePaymentsStore {
     if (ci) {
       const studentKeys = R.map(s => s.studentKey, ci.students);
       const sps = await this.getStudentsPayments(studentKeys);
-      return this.cpayments2cpr(ci, sps, null);
+      return this.cpayments2cpr(courseKey, ci, sps, null);
     }
     return null;
   }
@@ -239,12 +249,49 @@ export class CoursePaymentsStore {
     if (ci) {
       const studentKeys = R.map(s => s.studentKey, ci.students);
       const sps = await this.getStudentsPaymentsUpToDate(studentKeys, toDate);
-      return this.cpayments2cpr(ci, sps, toDate);
+      return this.cpayments2cpr(courseKey, ci, sps, toDate);
     }
     return null;
   }
 
+  public async getCoursesPayments(coursesKey: string[]): Promise<ICoursesPaymentsReport> {
+    const res:Array<ICoursePaymentsReport | null> = [];
+    for (const courseKey of coursesKey) {
+      const r=await this.getCoursePayments(courseKey);
+      res.push(r);
+    }
+    return {courses: res, sum:this.sumPayments(res)}
+  }
+
+
+  public async getCoursesPaymentsUpToDate(coursesKey: string[], toDate: Date): Promise<ICoursesPaymentsReport> {
+      const res:Array<ICoursePaymentsReport | null> = [];
+      for (const courseKey of coursesKey) {
+        const r=await this.getCoursePaymentsUpToDate(courseKey, toDate);
+        res.push(r);
+      }
+      return {courses: res, sum:this.sumPayments(res)};
+  }
+  
+  private sumPayments(a: Array<ICoursePaymentsReport | null>):ICoursePaymentsReportSum {
+    const r:ICoursePaymentsReportSum = {
+      amount: 0,
+      amountByStatus: { s: 0, n: 0, k: 0, e: 0 },
+    }
+    for (const p of a)  {
+      if (p) {
+        r.amount += p.amount;
+        r.amountByStatus.e += p.amountByStatus.e;
+        r.amountByStatus.s += p.amountByStatus.s;
+        r.amountByStatus.n += p.amountByStatus.n;
+        r.amountByStatus.k += p.amountByStatus.k;
+      }
+    }
+    return r;
+  }
+
   private cpayments2cpr(
+    courseKey: string,
     ci: ICourseInfo,
     sps: Record<string, IStudentPayments>,
     date: Date | null,
@@ -285,7 +332,7 @@ export class CoursePaymentsStore {
 
     const amount = R.reduce<IStudentPayments, number>((a, s) => a + s.amount, 0, R.values(sps));
     const count = R.keys(sps).length;
-    return { date, amount, count, students: sps, studentsByStatus: sbs, amountByStatus: abs, countByStatus: cbs };
+    return { courseKey, date, amount, count, students: sps, studentsByStatus: sbs, amountByStatus: abs, countByStatus: cbs };
   }
 
   private payments2sp(payments: ICoursePayment[], keys: string[]): Record<string, IStudentPayments> {
