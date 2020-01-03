@@ -72,7 +72,7 @@ const lookupcourse = jest.fn(
 );
 
 const lookupcategory = jest.fn(
-  (catKey: string, seasonKey:string): Promise<ICategoryInfo | null> => {
+  (catKey: string, seasonKey: string): Promise<ICategoryInfo | null> => {
     let ci: ICategoryInfo | null = null;
     switch (catKey) {
       case 'f1':
@@ -149,14 +149,12 @@ test('CoursePayments - get multi payments', async () => {
     endDate: new Date('1996-01-01T00:00'),
   });
 
-
-  const cat1 = await lookupcategory('f1','s1');
-  expect(cat1).toMatchObject({key:'f1'});
-  expect(cat1?.courseKeys).toStrictEqual(['c1','c2'])
+  const cat1 = await lookupcategory('f1', 's1');
+  expect(cat1).toMatchObject({ key: 'f1' });
+  expect(cat1?.courseKeys).toStrictEqual(['c1', 'c2']);
   expect(cat1?.firmKey).toBe('firm1');
 
-
-  expect(await rps.addCategory('f1','s1')).toBe(true);
+  expect(await rps.addCategory('f1', 's1')).toBe(true);
   const rep1 = await rps.createReportUpToDate(null);
   expect(rep1).toHaveLength(1);
   expect(rep1[0].courses).toHaveLength(2);
@@ -170,7 +168,7 @@ test('CoursePayments - get multi payments', async () => {
   expect(rep1[0].cat.name).toBe('cat1');
   expect(rep1[0].cat.firmKey).toBe('firm1');
 
-  expect(await rps.addCategory('f2','s1')).toBe(true);
+  expect(await rps.addCategory('f2', 's1')).toBe(true);
 
   const rep2 = await rps.createReportUpToDate(null);
   expect(rep2).toHaveLength(2);
@@ -181,8 +179,7 @@ test('CoursePayments - get multi payments', async () => {
   expect(rep2[0].amountByStatus.n).toBe(4900);
   expect(rep2[0].amountByStatus.k).toBe(1700);
   expect(rep2[0].date).toBe(null);
- 
- 
+
   expect(rep2[1].courses).toHaveLength(1);
   expect(rep2[1].amount).toBe(4900);
   expect(rep2[1].amountByStatus.e).toBe(0);
@@ -190,13 +187,12 @@ test('CoursePayments - get multi payments', async () => {
   expect(rep2[1].amountByStatus.n).toBe(4900);
   expect(rep2[1].amountByStatus.k).toBe(0);
   expect(rep2[1].date).toBe(null);
- 
+
   expect(await rps.clearCategories()).toBe(true);
   const repe = await rps.createReportUpToDate(null);
   expect(repe).toHaveLength(0);
 
-
-  expect(await rps.addCategory('f2','s1')).toBe(true);
+  expect(await rps.addCategory('f2', 's1')).toBe(true);
   const rep3 = await rps.createReportUpToDate(new Date('1996-01-01T00:00:00.000Z'));
   expect(rep3).toHaveLength(1);
   expect(rep3[0].amount).toBe(3200);
@@ -204,7 +200,6 @@ test('CoursePayments - get multi payments', async () => {
   expect(rep3[0].amountByStatus.s).toBe(0);
   expect(rep3[0].amountByStatus.n).toBe(3200);
   expect(rep3[0].amountByStatus.k).toBe(0);
-
 
   expect(rep3[0].date).toEqual(new Date('1996-01-01T00:00:00.000Z'));
 
@@ -216,17 +211,15 @@ test('CoursePayments - get multi payments', async () => {
   expect(rep4[0].amountByStatus.n).toBe(4900);
   expect(rep4[0].amountByStatus.k).toBe(0);
 
-
   expect(await rps.clearCategories()).toBe(true);
-  expect(await rps.addCourses(['c1','c2'])).toBe(true);
-  const rep5= await rps.createReportUpToDate(new Date('1996-01-01T00:00:00.000Z'));
+  expect(await rps.addCourses(['c1', 'c2'])).toBe(true);
+  const rep5 = await rps.createReportUpToDate(new Date('1996-01-01T00:00:00.000Z'));
   expect(rep5).toHaveLength(1);
   expect(rep5[0].amount).toBe(3200);
   expect(rep5[0].amountByStatus.e).toBe(0);
   expect(rep5[0].amountByStatus.s).toBe(0);
   expect(rep5[0].amountByStatus.n).toBe(3200);
   expect(rep5[0].amountByStatus.k).toBe(0);
-
 
   mc.close();
 });

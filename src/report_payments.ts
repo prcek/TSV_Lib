@@ -10,7 +10,7 @@ export interface ICategoryInfo {
   courseKeys: string[];
   name: string;
 }
-type TLookupCategoryInfoType = (catKey: string, seasonKey:string) => Promise<ICategoryInfo | null>;
+type TLookupCategoryInfoType = (catKey: string, seasonKey: string) => Promise<ICategoryInfo | null>;
 
 interface IReportPaymentsOptions {
   coursePaymentsStore: CoursePaymentsStore;
@@ -18,13 +18,12 @@ interface IReportPaymentsOptions {
   endDate: Date;
 }
 
-
 interface IReportPaymentsResult {
-    cat: ICategoryInfo;
-    date: Date | null;
-    courses: Array<ICoursePaymentsReport |null>;
-    amount: number;
-    amountByStatus: Record<EStudentStatusType, number>;
+  cat: ICategoryInfo;
+  date: Date | null;
+  courses: Array<ICoursePaymentsReport | null>;
+  amount: number;
+  amountByStatus: Record<EStudentStatusType, number>;
 }
 export class ReportPayments {
   private coursePaymentsStore: CoursePaymentsStore;
@@ -53,12 +52,12 @@ export class ReportPayments {
 
   public async addCourses(courseKeys: string[]): Promise<boolean> {
     const cat: ICategoryInfo = {
-        key: "",
-        seasonKey: "",
-        firmKey: "",
-        courseKeys,
-        name: "",
-    }
+      key: '',
+      seasonKey: '',
+      firmKey: '',
+      courseKeys,
+      name: '',
+    };
     if (cat) {
       this.cats.push(cat);
       return true;
@@ -67,31 +66,32 @@ export class ReportPayments {
   }
 
   public async createReportUpToDate(toDate: Date | null): Promise<IReportPaymentsResult[]> {
-    const rs: IReportPaymentsResult[] = []
-    for(const cat of this.cats) {
-        // console.log('createReport - cat', cat.name);
-        const catR: IReportPaymentsResult = {
-            cat,
-            courses:[],
-            date: toDate,
-            amount: 0,
-            amountByStatus:  {s:0, n:0, k:0, e:0}
+    const rs: IReportPaymentsResult[] = [];
+    for (const cat of this.cats) {
+      // console.log('createReport - cat', cat.name);
+      const catR: IReportPaymentsResult = {
+        cat,
+        courses: [],
+        date: toDate,
+        amount: 0,
+        amountByStatus: { s: 0, n: 0, k: 0, e: 0 },
+      };
+      for (const courseKey of cat.courseKeys) {
+        // console.log('createReport - courseKey');
+        const r = await (toDate
+          ? this.coursePaymentsStore.getCoursePaymentsUpToDate(courseKey, toDate)
+          : this.coursePaymentsStore.getCoursePayments(courseKey));
+        catR.courses.push(r);
+        if (r) {
+          catR.amount += r.amount;
+          catR.amountByStatus.e += r.amountByStatus.e;
+          catR.amountByStatus.s += r.amountByStatus.s;
+          catR.amountByStatus.n += r.amountByStatus.n;
+          catR.amountByStatus.k += r.amountByStatus.k;
         }
-        for(const courseKey of cat.courseKeys) {
-            // console.log('createReport - courseKey');
-            const r = await ( toDate ?  this.coursePaymentsStore.getCoursePaymentsUpToDate(courseKey, toDate): this.coursePaymentsStore.getCoursePayments(courseKey));
-            catR.courses.push(r);
-            if (r) {
-                catR.amount += r.amount;
-                catR.amountByStatus.e += r.amountByStatus.e;
-                catR.amountByStatus.s += r.amountByStatus.s;
-                catR.amountByStatus.n += r.amountByStatus.n;
-                catR.amountByStatus.k += r.amountByStatus.k;
-            }
-            
-        }
-        rs.push(catR);
-    }  
+      }
+      rs.push(catR);
+    }
     return rs;
   }
 }
