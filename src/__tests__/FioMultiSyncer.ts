@@ -20,7 +20,7 @@ afterEach(() => {
 });
 
 test('FioMultiSync  manual setup', async () => {
-  const muri =  mongod.getUri("fs");
+  const muri = mongod.getUri('fs');
   const mc = await createMongooseConnection(muri);
 
   const ms = new FioMultiSyncer();
@@ -189,7 +189,7 @@ function setup_syncer_mock(syncer: FioSyncer): void {
 }
 
 test('FioMultiSync  multi', async () => {
-  const muri =  mongod.getUri("fs");
+  const muri = mongod.getUri('fs');
   const mc = await createMongooseConnection(muri);
 
   const logger = {

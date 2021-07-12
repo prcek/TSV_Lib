@@ -423,7 +423,6 @@ export const tdJsonTrTypes = JSON.stringify({
   },
 });
 
-
 export const tdJsonTrTypesFast = JSON.stringify({
   accountStatement: {
     info: {
@@ -443,36 +442,33 @@ export const tdJsonTrTypesFast = JSON.stringify({
       idLastDownload: null,
     },
     transactionList: {
-
-
-
-      transaction:[
-        { 
-          "column22": { "value": 23791824250, "name": "ID pohybu", "id": 22 }, 
-          "column0": { "value": "2021-06-22+0200", "name": "Datum", "id": 0 }, 
-          "column1": { "value": 500, "name": "Objem", "id": 1 }, 
-          "column14": { "value": "CZK", "name": "Měna", "id": 14 }, 
-          "column2": { "value": "206577868", "name": "Protiúčet", "id": 2 }, 
-          "column10": { "value": tdFakeUser4Name, "name": "Název protiúčtu", "id": 10 }, 
-          "column3": { "value": "0600", "name": "Kód banky", "id": 3 }, 
-          "column12": { "value": "MONETA Money Bank, a.s.", "name": "Název banky", "id": 12 }, 
-          "column4": null, 
-          "column5": { "value": "11108104", "name": "VS", "id": 5 }, 
-          "column6": null, 
-          "column7": { "value": tdFakeUser4Name, "name": "Uživatelská identifikace", "id": 7 }, 
-          "column16": { "value": "bla bla", "name": "Zpráva pro příjemce", "id": 16 }, 
-          "column8": { "value": "Okamžitá příchozí platba", "name": "Typ", "id": 8 }, 
-          "column9": null, 
-          "column18": null, 
-          "column25": { "value": tdFakeUser3Name, "name": "Komentář", "id": 25 }, 
-          "column26": null, 
-          "column17": { "value": 29285860275, "name": "ID pokynu", "id": 17 }, 
-          "column27": null }
+      transaction: [
+        {
+          column22: { value: 23791824250, name: 'ID pohybu', id: 22 },
+          column0: { value: '2021-06-22+0200', name: 'Datum', id: 0 },
+          column1: { value: 500, name: 'Objem', id: 1 },
+          column14: { value: 'CZK', name: 'Měna', id: 14 },
+          column2: { value: '206577868', name: 'Protiúčet', id: 2 },
+          column10: { value: tdFakeUser4Name, name: 'Název protiúčtu', id: 10 },
+          column3: { value: '0600', name: 'Kód banky', id: 3 },
+          column12: { value: 'MONETA Money Bank, a.s.', name: 'Název banky', id: 12 },
+          column4: null,
+          column5: { value: '11108104', name: 'VS', id: 5 },
+          column6: null,
+          column7: { value: tdFakeUser4Name, name: 'Uživatelská identifikace', id: 7 },
+          column16: { value: 'bla bla', name: 'Zpráva pro příjemce', id: 16 },
+          column8: { value: 'Okamžitá příchozí platba', name: 'Typ', id: 8 },
+          column9: null,
+          column18: null,
+          column25: { value: tdFakeUser3Name, name: 'Komentář', id: 25 },
+          column26: null,
+          column17: { value: 29285860275, name: 'ID pokynu', id: 17 },
+          column27: null,
+        },
       ],
     },
   },
 });
-
 
 export const tdJsonTrTypesNull = JSON.stringify({
   accountStatement: {

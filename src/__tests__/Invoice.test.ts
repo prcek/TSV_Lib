@@ -39,7 +39,7 @@ test('Invoice CUR - mongo', async () => {
   //   course_cost: 1,
   //   paid: 1
   // });
-  const muri = mongod.getUri("fs");
+  const muri = mongod.getUri('fs');
   const mc = await createMongooseConnection(muri);
   const ir = new InvoiceResolver(mc);
   expect(mc.collections).toHaveProperty('invoices_NEW2');
@@ -53,7 +53,7 @@ test('Invoice CUR - model', async () => {
   //   course_cost: 1,
   //   paid: 1
   // });
-  const muri = mongod.getUri("fs");
+  const muri = mongod.getUri('fs');
   const mc = await createMongooseConnection(muri);
   const ir = new InvoiceResolver(mc);
   expect(await ir.getAll()).toHaveLength(0);

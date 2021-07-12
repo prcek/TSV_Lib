@@ -70,6 +70,5 @@ export function createFioCfgFromEnv(): FioCfg {
     fc.addFio(process.env.BANK_FIO_ACCOUNT_ID_ZS || '', process.env.BANK_FIO_TOKEN_ZS || '', 'zs');
   }
 
-
   return fc;
 }

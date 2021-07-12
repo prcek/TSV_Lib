@@ -9,7 +9,7 @@ import {
   tdJsonDayEmpty,
   tdJsonTrTypes,
   tdJsonTrTypesNull,
-  tdJsonTrTypesFast
+  tdJsonTrTypesFast,
 } from '../__test_data__/data';
 // tslint:disable-next-line:ordered-imports
 import { FioTransactionProcessingStatus, FioTransactionType, IFioBankTransaction } from '../fio_ds';
@@ -31,7 +31,7 @@ afterEach(() => {
 });
 
 test('My FioSyncer - first start', async () => {
-  const muri =  mongod.getUri("fs");
+  const muri = mongod.getUri('fs');
   const mc = await createMongooseConnection(muri);
   const fds = new FioDataStore(mc, 'a1');
   const frd = new FioReader('test_token', tdFioAccountId);
@@ -137,7 +137,7 @@ test('My FioSyncer - sync day', async () => {
   fetchMock.resetMocks();
   fetchMock.mockResponseOnce(tdJsonDay1);
 
-  const muri = mongod.getUri("fs");
+  const muri = mongod.getUri('fs');
   const mc = await createMongooseConnection(muri);
   const fds = new FioDataStore(mc, tdFioAccountId);
   const frd = new FioReader('test_token', tdFioAccountId);
@@ -161,7 +161,7 @@ test('My FioSyncer - start (recovery A), sync last - one fetch, 2 empty', async 
   fetchMock.resetMocks();
   fetchMock.mockResponseOnce(tdJsonDay1).mockResponseOnce('');
 
-  const muri = mongod.getUri("fs");
+  const muri = mongod.getUri('fs');
   const mc = await createMongooseConnection(muri);
   const fds = new FioDataStore(mc, tdFioAccountId);
   const frd = new FioReader('test_token', tdFioAccountId);
@@ -192,7 +192,7 @@ test('My FioSyncer - start (recovery A), sync last - one fetch, 2 empty', async 
 test('My FioSyncer - transaction types', async () => {
   fetchMock.resetMocks();
   fetchMock.mockResponseOnce(tdJsonTrTypes);
-  const muri = mongod.getUri("fs");
+  const muri = mongod.getUri('fs');
   const mc = await createMongooseConnection(muri);
   const fds = new FioDataStore(mc, tdFioAccountId);
   const frd = new FioReader('test_token', tdFioAccountId);
@@ -209,7 +209,7 @@ test('My FioSyncer - transaction types', async () => {
 test('My FioSyncer - transaction types - null problem', async () => {
   fetchMock.resetMocks();
   fetchMock.mockResponseOnce(tdJsonTrTypesNull);
-  const muri = mongod.getUri("fs");
+  const muri = mongod.getUri('fs');
   const mc = await createMongooseConnection(muri);
   const fds = new FioDataStore(mc, tdFioAccountId);
   const frd = new FioReader('test_token', tdFioAccountId);
@@ -226,7 +226,7 @@ test('My FioSyncer - transaction types - null problem', async () => {
 test('My FioSyncer - logger', async () => {
   fetchMock.resetMocks();
   fetchMock.mockResponseOnce(tdJsonTrTypes);
-  const muri = mongod.getUri("fs");
+  const muri = mongod.getUri('fs');
   const mc = await createMongooseConnection(muri);
   const fds = new FioDataStore(mc, tdFioAccountId);
   const frd = new FioReader('test_token', tdFioAccountId);
@@ -251,11 +251,10 @@ test('My FioSyncer - logger', async () => {
   mc.close();
 });
 
-
 test('My FioSyncer - transaction types 2', async () => {
   fetchMock.resetMocks();
   fetchMock.mockResponseOnce(tdJsonTrTypesFast);
-  const muri = mongod.getUri("fs");
+  const muri = mongod.getUri('fs');
   const mc = await createMongooseConnection(muri);
   const fds = new FioDataStore(mc, tdFioAccountId);
   const frd = new FioReader('test_token', tdFioAccountId);

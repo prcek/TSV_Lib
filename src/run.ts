@@ -12,7 +12,7 @@ require('dotenv').config();
 const mongod = new MongoMemoryServer();
 
 async function startLocalMongoDB(): Promise<mongoose.Connection> {
-  const mongoUri: string =  mongod.getUri();
+  const mongoUri: string = mongod.getUri();
 
   const mongooseOpts = {
     // options for mongoose 4.11.3 and above

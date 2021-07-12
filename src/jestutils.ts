@@ -1,7 +1,7 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import * as mongoose from 'mongoose';
 
-export const mongod = new MongoMemoryServer({instance:{dbName:"fs"}});
+export const mongod = new MongoMemoryServer({ instance: { dbName: 'fs' } });
 
 export async function createMongooseConnection(mongoUri: string): Promise<mongoose.Connection> {
   const mongooseOpts = {
