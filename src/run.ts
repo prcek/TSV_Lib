@@ -9,10 +9,10 @@ import { GraphQLInvoiceQueryType, IInvoice, IInvoiceQueryContext, InvoiceResolve
 // tslint:disable-next-line:no-var-requires
 require('dotenv').config();
 
-const mongod = new MongoMemoryServer({ debug: false, autoStart: false });
+const mongod = new MongoMemoryServer();
 
 async function startLocalMongoDB(): Promise<mongoose.Connection> {
-  const mongoUri: string = await mongod.getConnectionString();
+  const mongoUri: string =  mongod.getUri();
 
   const mongooseOpts = {
     // options for mongoose 4.11.3 and above

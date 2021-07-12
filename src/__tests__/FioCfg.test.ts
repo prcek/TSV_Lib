@@ -53,4 +53,15 @@ test('FioCfg - read env', () => {
   process.env.BANK_FIO_ON_SRO = 'false';
   const cfg5 = createFioCfgFromEnv();
   expect(cfg5.anyFio()).toBe(false);
+
+
+  process.env.BANK_FIO_ON_LB = 'true';
+  process.env.BANK_FIO_ON_ZS = 'true';
+  process.env.BANK_FIO_TOKEN_ZS = 'tzs';
+  process.env.BANK_FIO_ACCOUNT_ID_ZS = 'a_zs';
+  const cfg6 = createFioCfgFromEnv();
+  expect(cfg6.anyFio()).toBe(true);
+  const aa2 = cfg6.getAllAccounts();
+  expect(aa2).toEqual(['a2','a_zs']);
+
 });

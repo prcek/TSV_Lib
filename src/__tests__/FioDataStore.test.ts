@@ -5,26 +5,27 @@ import { FioDataStore, FioTransactionProcessingStatus, FioTransactionType, IFioB
 import { createMongooseConnection, mongod } from '../jestutils';
 
 beforeEach(() => {
-  // console.log('beforeEach');
-  return mongod.start();
+//  console.log('beforeEach');
+  return  mongod.start();
 });
 
 afterEach(() => {
-  // console.log('afterEach');
+//  console.log('afterEach');
   return mongod.stop();
 });
 
 test.skip('My FioDataStore', async () => {
-  const muri = await mongod.getConnectionString();
-  const mc = await createMongooseConnection(muri);
-  const fds = new FioDataStore(mc, '123');
-  const info = await fds.getMongoVersion();
-  expect(info).toBe('4.0.3');
-  mc.close();
+  const muri =  mongod.getUri("fs");
+  console.log(muri);
+  //const mc = await createMongooseConnection(muri);
+  //const fds = new FioDataStore(mc, '123');
+  //const info = await fds.getMongoVersion();
+  //expect(info).toBe('4.0.25');
+  //mc.close();
 });
 
 test('My FioDataStore - list,store,list', async () => {
-  const muri = await mongod.getConnectionString();
+  const muri = mongod.getUri("fs");
   const mc = await createMongooseConnection(muri);
   const fds = new FioDataStore(mc, 'a1');
   const atr = await fds.fetchAllTransactions();
@@ -75,7 +76,7 @@ test('My FioDataStore - list,store,list', async () => {
 });
 
 test('My FioDataStore - start empty, save lastid, getlastid', async () => {
-  const muri = await mongod.getConnectionString();
+  const muri = mongod.getUri("fs");
   const mc = await createMongooseConnection(muri);
   const fds = new FioDataStore(mc, 'a1');
   const fds2 = new FioDataStore(mc, 'a2');
@@ -91,7 +92,7 @@ test('My FioDataStore - start empty, save lastid, getlastid', async () => {
 });
 
 test('FioDataStore - duplicate write', async () => {
-  const muri = await mongod.getConnectionString();
+  const muri =  mongod.getUri("fs");
   const mc = await createMongooseConnection(muri);
   const fds = new FioDataStore(mc, 'a1');
   const atr = await fds.fetchAllTransactions();
@@ -131,7 +132,7 @@ test('FioDataStore - duplicate write', async () => {
 });
 
 test('FioDataStore -  fetchOneNew, updateStatus', async () => {
-  const muri = await mongod.getConnectionString();
+  const muri =  mongod.getUri("fs");
   const mc = await createMongooseConnection(muri);
   const fds = new FioDataStore(mc, 'a1');
 
@@ -160,7 +161,7 @@ test('FioDataStore -  fetchOneNew, updateStatus', async () => {
 });
 
 test('FioDataStore -  multi ds, cross isolation', async () => {
-  const muri = await mongod.getConnectionString();
+  const muri =  mongod.getUri("fs");
   const mc = await createMongooseConnection(muri);
   const fds1 = new FioDataStore(mc, 'a1');
   const fds2 = new FioDataStore(mc, 'a2');

@@ -13,7 +13,7 @@ afterEach(() => {
 });
 
 test('FioMultiDataStore', async () => {
-  const muri = await mongod.getConnectionString();
+  const muri =  mongod.getUri("fs");
   const mc = await createMongooseConnection(muri);
 
   const fds1 = new FioDataStore(mc, 'a1');

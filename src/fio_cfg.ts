@@ -66,6 +66,10 @@ export function createFioCfgFromEnv(): FioCfg {
   if (process.env.BANK_FIO_ON_AB === 'true') {
     fc.addFio(process.env.BANK_FIO_ACCOUNT_ID_AB || '', process.env.BANK_FIO_TOKEN_AB || '', 'ab');
   }
+  if (process.env.BANK_FIO_ON_ZS === 'true') {
+    fc.addFio(process.env.BANK_FIO_ACCOUNT_ID_ZS || '', process.env.BANK_FIO_TOKEN_ZS || '', 'zs');
+  }
+
 
   return fc;
 }

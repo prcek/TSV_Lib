@@ -78,7 +78,7 @@ test('CoursePayments - lookup Exact', async () => {
   //   course_cost: 1,
   //   paid: 1
   // });
-  const muri = await mongod.getConnectionString();
+  const muri =  mongod.getUri("fs");
   const mc = await createMongooseConnection(muri);
   const cps = new CoursePaymentsStore(mc, {
     lookupStudentInfo: lookup,
@@ -101,7 +101,7 @@ test('CoursePayments - lookup Exact', async () => {
 
 test('CoursePayments - insert payments', async () => {
   update.mockClear();
-  const muri = await mongod.getConnectionString();
+  const muri =  mongod.getUri("fs");
   const mc = await createMongooseConnection(muri);
   const cps = new CoursePaymentsStore(mc, {
     lookupStudentInfo: lookup,
@@ -130,7 +130,7 @@ test('CoursePayments - insert payments', async () => {
 
 test('CoursePayments tryAuto', async () => {
   update.mockClear();
-  const muri = await mongod.getConnectionString();
+  const muri =  mongod.getUri("fs");
   const mc = await createMongooseConnection(muri);
   const cps = new CoursePaymentsStore(mc, {
     lookupStudentInfo: lookup,
@@ -170,9 +170,9 @@ test('CoursePayments tryAuto', async () => {
   mc.close();
 });
 
-test.only('CoursePayments - get multi payments', async () => {
+test('CoursePayments - get multi payments', async () => {
   update.mockClear();
-  const muri = await mongod.getConnectionString();
+  const muri = mongod.getUri("fs");
   const mc = await createMongooseConnection(muri);
   const cps = new CoursePaymentsStore(mc, {
     lookupStudentInfo: lookup,

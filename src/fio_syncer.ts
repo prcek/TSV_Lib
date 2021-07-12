@@ -163,6 +163,9 @@ export class FioSyncer {
       case 'Vklad pokladnou':
         tt = FioTransactionType.IN;
         break;
+      case 'Okamžitá příchozí platba':
+        tt = FioTransactionType.IN;
+        break;
     }
 
     const newtr = await this.store.storeTransactionRecord({
