@@ -14,8 +14,6 @@ import {
 // import { GraphQLDate, GraphQLDateTime } from 'graphql-iso-date';
 import { GraphQLDate, GraphQLDateTime } from 'graphql-scalars';
 
-
-
 export interface IInvoice {
   _id?: any;
   student_key: string;
@@ -262,7 +260,7 @@ export const GraphQLInvoiceMutationType = new GraphQLObjectType<any, IInvoiceQue
         },
       },
       resolve: (_, args, ctx) => {
-        return ctx.invoiceResolver.updateOneById(args.id, args);  // id or _id !!!!
+        return ctx.invoiceResolver.updateOneById(args.id, args); // id or _id !!!!
       },
     },
   },

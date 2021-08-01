@@ -1,6 +1,6 @@
 import { MongoError } from 'mongodb';
 import * as mongoose from 'mongoose';
-import { ObjectId } from 'mongoose';;
+import { ObjectId } from 'mongoose';
 import * as R from 'ramda';
 
 export enum FioTransactionProcessingStatus {
@@ -43,18 +43,17 @@ export interface IFioBankTransaction {
 }
 
 export interface IFioBankSyncInfo {
-  _id?:  any;
+  _id?: any;
   fioAccountId: string;
   idLastDownload: number;
 }
-
 
 export interface IFioBankTransactionModel extends mongoose.Document, IFioBankTransaction {}
 export interface IFioBankSyncInfoModel extends mongoose.Document, IFioBankSyncInfo {}
 
 export const FioBankTranscationSchema = new mongoose.Schema(
   {
-   // _id: { type: String },
+    // _id: { type: String },
     ps: {
       type: String,
       required: true,
@@ -129,17 +128,16 @@ export class FioDataStore {
       throw new Error('wrong fioAccountId');
     }
 
- 
     try {
       const str = await this.fioBankTransactionModel.create(trcopy);
       return str;
     } catch (e) {
-      console.log("EEEE if Duplicate then ignore",e);
-      if (e.name === "MongoError") {
+      console.log('EEEE if Duplicate then ignore', e);
+      if (e.name === 'MongoError') {
         if (e.code !== 11000) {
           // ignore duplicate
           // throw e;
-          console.log("EEEE Duplicate is ignored",e);
+          console.log('EEEE Duplicate is ignored', e);
         }
       } else {
         throw e;
