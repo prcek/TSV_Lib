@@ -30,7 +30,7 @@ export enum ECoursePaymentType {
 }
 
 export interface ICoursePayment {
-  _id: any;
+  _id?: any;
   type: ECoursePaymentType;
 
   date: Date;

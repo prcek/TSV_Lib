@@ -1,5 +1,6 @@
 import { MongoError } from 'mongodb';
 import * as mongoose from 'mongoose';
+import { ObjectId } from 'mongoose';;
 import * as R from 'ramda';
 
 export enum FioTransactionProcessingStatus {
@@ -18,7 +19,7 @@ export enum FioTransactionType {
 }
 
 export interface IFioBankTransaction {
-  _id: any;
+  _id?: any;
   ps: FioTransactionProcessingStatus;
   psRef: string | null;
   fioId: number;
@@ -42,16 +43,18 @@ export interface IFioBankTransaction {
 }
 
 export interface IFioBankSyncInfo {
-  _id: any;
+  _id?:  any;
   fioAccountId: string;
   idLastDownload: number;
 }
+
 
 export interface IFioBankTransactionModel extends mongoose.Document, IFioBankTransaction {}
 export interface IFioBankSyncInfoModel extends mongoose.Document, IFioBankSyncInfo {}
 
 export const FioBankTranscationSchema = new mongoose.Schema(
   {
+   // _id: { type: String },
     ps: {
       type: String,
       required: true,
@@ -126,14 +129,17 @@ export class FioDataStore {
       throw new Error('wrong fioAccountId');
     }
 
+ 
     try {
       const str = await this.fioBankTransactionModel.create(trcopy);
       return str;
     } catch (e) {
-      if (e instanceof MongoError) {
+      console.log("EEEE if Duplicate then ignore",e);
+      if (e.name === "MongoError") {
         if (e.code !== 11000) {
           // ignore duplicate
-          throw e;
+          //throw e;
+          console.log("EEEE Duplicate is ignored",e);
         }
       } else {
         throw e;
@@ -212,7 +218,7 @@ export class FioDataStore {
   public async resetLastId(): Promise<boolean> {
     const nd = await this.fioBankSyncInfoModel.findOneAndUpdate(
       { fioAccountId: this.fioAccountId },
-      { idLastDownload: null },
+      { idLastDownload: undefined },
       {
         new: true,
         upsert: true, // Make this update into an upsert

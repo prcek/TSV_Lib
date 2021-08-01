@@ -11,10 +11,13 @@ import {
   GraphQLString,
 } from 'graphql';
 
-import { GraphQLDate, GraphQLDateTime } from 'graphql-iso-date';
+//import { GraphQLDate, GraphQLDateTime } from 'graphql-iso-date';
+import { GraphQLDate, GraphQLDateTime } from 'graphql-scalars';
+
+
 
 export interface IInvoice {
-  _id: any;
+  _id?: any;
   student_key: string;
   no: string;
   s3key: string | null;
@@ -259,7 +262,7 @@ export const GraphQLInvoiceMutationType = new GraphQLObjectType<any, IInvoiceQue
         },
       },
       resolve: (_, args, ctx) => {
-        return ctx.invoiceResolver.updateOneById(args.id, args);
+        return ctx.invoiceResolver.updateOneById(args.id, args);  // id or _id !!!!
       },
     },
   },
